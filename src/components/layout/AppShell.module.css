@@ -30,6 +30,7 @@
   max-width: var(--content-max);
   margin: 0 auto;
   padding: var(--space-6) var(--space-4) var(--space-10);
+  box-sizing: border-box;
 }
 
 .main:focus {
@@ -39,5 +40,12 @@
 @media (min-width: 768px) {
   .main {
     padding: var(--space-8) var(--space-6) var(--space-12);
+  }
+}
+
+@media (min-width: 1280px) {
+  .main {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
   }
 }

@@ -25,7 +25,7 @@
 }
 
 .summary {
-  max-width: 48rem;
+  max-width: min(100%, 56rem);
   margin: 0;
   color: var(--color-text-muted);
 }
@@ -37,7 +37,7 @@
 
 .aka {
   margin: 0;
-  max-width: 48rem;
+  max-width: min(100%, 56rem);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--color-text-subtle);
@@ -54,7 +54,7 @@
 
 .buildsOn {
   margin: var(--space-1) 0 0;
-  max-width: 48rem;
+  max-width: min(100%, 56rem);
   font-size: var(--text-sm);
   color: var(--color-text-subtle);
 }
@@ -78,14 +78,14 @@
     "content";
 }
 
-/* Essay: single-column prose with embedded interactives (lesson 1) */
+/* Essay: full content width so interactives can breathe; prose keeps a measure */
 .workspaceEssay {
   display: grid;
   gap: var(--space-4);
   grid-template-columns: 1fr;
-  max-width: 42rem;
+  max-width: none;
   width: 100%;
-  justify-self: start;
+  justify-self: stretch;
 }
 
 /* Narrative lessons: prose → scene → optional explore */
@@ -219,6 +219,33 @@
   border-radius: var(--radius-lg);
   background: var(--color-bg-panel);
   padding: var(--space-5);
+  min-width: 0;
+}
+
+/* Essay: readable line length for running text; figures/tables use full width */
+.workspaceEssay .content {
+  padding: var(--space-5) var(--space-5) var(--space-6);
+}
+
+@media (min-width: 960px) {
+  .workspaceEssay .content {
+    padding: var(--space-6) var(--space-8) var(--space-8);
+  }
+}
+
+.workspaceEssay .content :global(p),
+.workspaceEssay .content :global(li),
+.workspaceEssay .content :global(blockquote),
+.workspaceEssay .content :global(h2),
+.workspaceEssay .content :global(h3) {
+  max-width: var(--prose-max);
+}
+
+.workspaceEssay .content :global(figure),
+.workspaceEssay .content :global(table),
+.workspaceEssay .content :global(details) {
+  max-width: none;
+  width: 100%;
 }
 
 .content :global(h2) {
@@ -399,7 +426,8 @@
   }
 
   .workspaceEssay {
-    max-width: 42rem;
+    max-width: none;
+    width: 100%;
   }
 
   .workspaceNarrative {
@@ -408,8 +436,8 @@
       "content"
       "scene"
       "controls";
-    max-width: 48rem;
-    justify-self: center;
+    max-width: min(100%, 64rem);
+    justify-self: stretch;
     width: 100%;
   }
 

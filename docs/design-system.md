@@ -16,7 +16,7 @@ Scale: `--text-xs` … `--text-3xl` with tight headings and relaxed body.
 ## Spacing and layout
 
 - 4px base scale: `--space-1` … `--space-12`
-- Content max width: `--content-max` (72rem)
+- Content max width: `--content-max` (90rem); essay prose measure: `--prose-max` (48rem)
 - Sticky header: `--header-height`
 - Lesson workspace: responsive CSS grid — scene primary; controls + metrics stack on narrow viewports; three-column on wide screens
 

@@ -92,7 +92,7 @@
 
 .svg {
   width: 100%;
-  max-width: 32rem;
+  max-width: min(100%, 52rem);
   height: auto;
   display: block;
   margin: 0 auto var(--space-3);

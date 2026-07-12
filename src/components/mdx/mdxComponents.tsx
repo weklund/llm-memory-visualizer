@@ -1,4 +1,5 @@
 import { ContextGrowthChart } from "@/components/lesson1/ContextGrowthChart";
+import { DecodeStage } from "@/components/lesson1/DecodeStage";
 import { GenerationTimeline } from "@/components/lesson1/GenerationTimeline";
 import { MentalModelContrast } from "@/components/lesson1/MentalModelContrast";
 import { TwoMemories } from "@/components/lesson1/TwoMemories";
@@ -14,5 +15,6 @@ export const mdxComponents = {
   MentalModelContrast,
   GenerationTimeline,
   ContextGrowthChart,
+  DecodeStage,
   TwoMemories,
 };
