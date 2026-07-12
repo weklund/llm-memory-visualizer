@@ -195,35 +195,19 @@ export function MentalModelContrast() {
           <div className={styles.stage}>
             <div className={styles.runMeter} aria-live="polite">
               {count === 0 ? (
-                <span>waiting for full model pass #1…</span>
-              ) : count <= TOKENS.length ? (
+                <span>About to run the whole model for the first token…</span>
+              ) : count < TOKENS.length || phase === "writing" ? (
                 <span>
-                  full model pass <strong>#{count}</strong>
-                  {count < TOKENS.length || phase === "writing" ? (
-                    <>
-                      {" "}
-                      → one token: <strong>{TOKENS[count - 1]}</strong>
-                    </>
-                  ) : (
-                    <> · reply complete</>
-                  )}
+                  Ran the <strong>whole model</strong> (pass {count}
+                  {TOKENS.length ? ` of ~${TOKENS.length}` : ""}) · got{" "}
+                  <strong>{TOKENS[count - 1]}</strong> · will run the whole model again
+                  for the next token
                 </span>
-              ) : null}
-            </div>
-            <div
-              className={[
-                styles.passStrip,
-                phase === "writing" && count > 0 ? styles.passStripActive : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-              aria-hidden="true"
-            >
-              <span className={styles.passStripLabel}>whole model</span>
-              <span className={styles.passStripTrack}>
-                <span className={styles.passStripFill} />
-              </span>
-              <span className={styles.passStripOut}>→ 1 token</span>
+              ) : (
+                <span>
+                  Reply complete after <strong>{TOKENS.length}</strong> full model runs
+                </span>
+              )}
             </div>
             <div
               className={styles.tokenRow}
