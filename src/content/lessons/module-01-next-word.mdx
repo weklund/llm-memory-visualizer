@@ -1,40 +1,87 @@
-## Where we start
+## The usual picture is wrong
 
-You already know the product experience: you type a message, a language model writes a reply. That is enough for this lesson.
+You already know the product: you type a message, a language model writes a reply. That is enough background.
 
-What most people have **not** been shown is the shape of the work underneath. The model does not “understand the whole question and then emit a finished paragraph” as one act. It writes the reply **one small piece at a time**, and each piece immediately becomes part of the story for the next piece.
+The natural picture in your head is often this: _the model “understands” the question, forms the whole answer, then dumps a paragraph._ That picture is useful for using chat apps. It is a poor picture of how the reply is actually produced.
 
-That single idea—_next piece, again and again_—is the foundation of everything later in this course. Memory pressure, KV caches, paging, and quantization only make sense once you can feel how a reply is a **growing timeline**, not a static document.
+<MentalModelContrast />
 
-You do **not** need transformer math, GPUs, or serving jargon yet. Those arrive after this loop is clear.
+What actually happens is narrower and more mechanical. The model repeatedly asks a smaller question:
 
-## Idea 1 — A reply is a sequence of decisions
+> Given everything so far, what is a good **next small piece** of text?
 
-Imagine the model has already seen your prompt:
+Those pieces are **tokens**—sometimes whole words, sometimes fragments, sometimes punctuation. For this lesson, treat them as beads on a string. You do **not** need tokenization details.
 
-> User: “Name three colors of the sky at sunset.”
+## One run, one piece, then append
 
-Before any answer text exists, the model’s job is not “produce three colors.” Its job is narrower and more mechanical:
+Engineers describe generation as a loop:
 
-> Given everything so far, what is a good **next token**?
+1. Look at the text so far (your prompt, then anything already written).
+2. Run the model **once** to choose the next token.
+3. **Append** that token to the text so far.
+4. Repeat until the reply stops.
 
-A **token** is a chunk of text the model treats as one unit—sometimes a whole word (`sky`), sometimes a fragment (`un`, `believ`, `able`), sometimes punctuation. For this course you can think of tokens as **beads on a string**: discrete pieces the model can add one by one.
+Each step conditions on a **growing past**. That process is called **autoregressive generation**—the name is optional; the loop is not.
 
-So the first decision might yield `The`, then `sky`, then `can`, and so on—not a pre-written essay.
+The interactive below uses one **fixed** demo so you can re-watch the same path. It is schematic, not a live model.
 
-## Idea 2 — Each decision becomes part of the past
+<GenerationTimeline />
 
-After the model chooses a next token, that token is **appended** to the text so far. The next decision does not start from a blank slate. It starts from:
+If you remember only one sentence from this lesson, make it this:
 
-**prompt + everything already written in the reply.**
+> The model did not write the reply all at once. It kept asking “what’s next?” and every answer became part of the past for the next ask.
 
-That is the **generation loop**:
+## The past in play keeps growing
 
-1. Look at the text so far (prompt, then growing reply).
-2. Choose one next token.
-3. Append it.
-4. Repeat until the model stops (end of reply, length limit, or a stop signal).
+The same loop explains three everyday situations:
 
-Engineers call this **autoregressive generation**: each step is conditioned on a **growing past**. The name is optional; the loop is not.
+| What you do                         | What grows for the next token                   |
+| ----------------------------------- | ----------------------------------------------- |
+| You send a **longer prompt**        | More tokens exist before the first output token |
+| The model writes a **longer reply** | Each new token joins the past for the next step |
+| You continue a **multi-turn chat**  | Earlier turns usually stay in context           |
 
-**Watch the looping animation below.** It is schematic—not a live model. Prompt beads stay fixed. Reply beads light up one by one. Phase labels cycle: read past → choose next → append → repeat. When the display stream fills, the loop restarts so you can re-watch growth without touching any controls.
+Nothing mystical: the loop always asks “what next, given so far?”—and “so far” is simply longer. That is why systems care about **sequence length** long before we talk about GPUs.
+
+Compare three scenarios. Watch how tall the stack gets:
+
+<ContextGrowthChart />
+
+## Two meanings of “memory” (door to the rest of the course)
+
+People use “memory” for two different things. Keep them separate:
+
+<TwoMemories />
+
+- **Lesson 2** asks how the model **looks back** along the past when choosing the next token.
+- **Lesson 3** asks what the engine **stores** so looking back is affordable (the KV cache).
+
+Today you only needed the loop and the growing stack of **text**.
+
+## Check yourself
+
+<Checkpoint>
+
+- Can you describe generation as a loop, not a single “write the whole answer” step?
+- If a reply doubles in length, what roughly doubles for the **next** token decision?
+- In one sentence: how is “the chat remembers what I said” different from “the GPU stores a cache”?
+
+</Checkpoint>
+
+<details>
+<summary>Assumptions & sources</summary>
+
+**Assumptions**
+
+- We ignore tokenizer details (BPE, special tokens).
+- We ignore sampling (temperature, top-p)—those pick _which_ next token, not the loop shape.
+- Demo tokens and prompt lengths are schematic and fixed for teaching.
+
+**Sources**
+
+- Standard decoder-only LM framing: next-token prediction under a growing context.
+- Teaching spine: `docs/lesson-01-redesign.md` (vault-informed redesign).
+- Outcomes: `docs/learning-outcomes.md` (Module 1).
+- Deeper later: Attention (`S01`), KV cache notes in `docs/sources.md`.
+
+</details>

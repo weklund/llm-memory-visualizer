@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 
 export type ModuleStage = "foundations" | "core-memory" | "systems" | "consequences";
 
-export type ModuleWorkspace = "narrative" | "memory-lab";
+export type ModuleWorkspace = "essay" | "narrative" | "memory-lab";
 
 export type ModuleMeta = {
   id: string;
@@ -18,8 +18,9 @@ export type ModuleMeta = {
   buildsOn: string;
   stage: ModuleStage;
   /**
-   * narrative = foundation explore knobs
-   * memory-lab = full controls + metrics
+   * essay = single-column prose with embedded interactives (no WebGL lab)
+   * narrative = prose + optional 3D scene
+   * memory-lab = scene + full controls + metrics
    */
   workspace: ModuleWorkspace;
   status: "placeholder" | "draft" | "ready";
@@ -27,11 +28,6 @@ export type ModuleMeta = {
 
 export type ModuleDefinition = ModuleMeta & {
   loadContent: () => Promise<{ default: ComponentType }>;
-  /**
-   * Optional second prose block for narrative lessons (after the scene).
-   * Supports content → scene → more content cognitive order.
-   */
-  loadContentAfter?: () => Promise<{ default: ComponentType }>;
 };
 
 export const stageLabels: Record<ModuleStage, string> = {
@@ -58,10 +54,9 @@ export const modules: ModuleDefinition[] = [
       "How a model writes text one piece at a time—and why the amount of past text keeps growing.",
     buildsOn: "Only a high-level idea of what an LLM is",
     stage: "foundations",
-    workspace: "narrative",
+    workspace: "essay",
     status: "ready",
     loadContent: () => import("@/content/lessons/module-01-next-word.mdx"),
-    loadContentAfter: () => import("@/content/lessons/module-01-next-word-after.mdx"),
   },
   {
     id: "module-02",

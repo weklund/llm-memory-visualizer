@@ -28,27 +28,7 @@ export const guidedBaseParams: Partial<SimulationParams> = {
 };
 
 export const guidedStepsBySlug: Record<string, GuidedStep[]> = {
-  "next-word-loop": [
-    {
-      id: "start",
-      title: "Empty reply",
-      focus:
-        "Progress near zero: only the idea of a prompt exists; generation has barely begun.",
-      params: { generateProgress: 0.05, sequenceLength: 256 },
-    },
-    {
-      id: "mid",
-      title: "Writing mid-reply",
-      focus: "Halfway along: each new token is chosen given everything written so far.",
-      params: { generateProgress: 0.55, sequenceLength: 512 },
-    },
-    {
-      id: "long",
-      title: "Longer past",
-      focus: "A longer sequence means more past text is in play for the next word.",
-      params: { generateProgress: 0.9, sequenceLength: 1024 },
-    },
-  ],
+  // Lesson 1 is essay workspace with embedded interactives (no guided lab steps).
   "looking-back": [
     {
       id: "early",

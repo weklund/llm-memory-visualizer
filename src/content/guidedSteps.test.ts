@@ -5,8 +5,9 @@ import { collectParamWarnings } from "@/lib/paramGuards";
 import type { SimulationParams } from "@/state/simulationStore";
 
 describe("guidedSteps", () => {
-  it("covers every module slug with at least 2 steps", () => {
+  it("covers lab/narrative modules with at least 2 steps", () => {
     for (const mod of modules) {
+      if (mod.workspace === "essay") continue;
       const steps = getGuidedSteps(mod.slug);
       expect(steps.length, mod.slug).toBeGreaterThanOrEqual(2);
     }

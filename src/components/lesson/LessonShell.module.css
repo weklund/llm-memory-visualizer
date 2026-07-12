@@ -78,7 +78,17 @@
     "content";
 }
 
-/* Narrative lessons: prose → scene → more prose → optional explore */
+/* Essay: single-column prose with embedded interactives (lesson 1) */
+.workspaceEssay {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+  max-width: 42rem;
+  width: 100%;
+  justify-self: start;
+}
+
+/* Narrative lessons: prose → scene → optional explore */
 .workspaceNarrative {
   display: grid;
   gap: var(--space-4);
@@ -86,12 +96,7 @@
   grid-template-areas:
     "content"
     "scene"
-    "content-after"
     "controls";
-}
-
-.contentAfter {
-  grid-area: content-after;
 }
 
 .labModeRow {
@@ -273,6 +278,22 @@
   margin-bottom: var(--space-2);
 }
 
+.content :global(details) {
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.content :global(details summary) {
+  cursor: pointer;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
 .content :global(ul) {
   color: var(--color-text-muted);
   padding-left: 1.25rem;
@@ -359,13 +380,15 @@
     align-items: stretch;
   }
 
-  /* Narrative stays single-column: read → watch → continue → optional explore */
+  .workspaceEssay {
+    max-width: 42rem;
+  }
+
   .workspaceNarrative {
     grid-template-columns: 1fr;
     grid-template-areas:
       "content"
       "scene"
-      "content-after"
       "controls";
     max-width: 48rem;
     justify-self: center;
