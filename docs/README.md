@@ -31,8 +31,14 @@ This folder is the **content ground truth** for the LLM Memory Visualizer. Imple
 | [conventions.md](./conventions.md)     | #4    | Stack, layout, scripts, content rules |
 | [design-system.md](./design-system.md) | #6    | Tokens, metaphors, a11y color rules   |
 
+## Simulation primitives (Milestone 2)
+
+| Document                           | Issue  | Purpose                                                    |
+| ---------------------------------- | ------ | ---------------------------------------------------------- |
+| [primitives.md](./primitives.md)   | #8–#12 | Pure metrics, 3D primitives, V2 lesson → scene map         |
+
 Runnable app: `npm install && npm run dev` (see root README).
 
 ## Next milestones
 
-See GitHub milestones 2–6 (primitives → MVP modules → advanced modules → QA → launch).
+See GitHub milestones 3–6 (MVP modules → advanced modules → QA → launch).

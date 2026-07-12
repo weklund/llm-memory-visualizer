@@ -1,3 +1,4 @@
+import { modelPresets, type ModelPresetId } from "@/lib/modelPresets";
 import { useSimulationStore, type SimulationParams } from "@/state/simulationStore";
 import styles from "./ControlPanel.module.css";
 
@@ -22,12 +23,34 @@ const sliders: SliderSpec[] = [
     max: 4,
     step: 0.25,
   },
+  {
+    key: "quantBytesPerElement",
+    label: "Quant payload bpe",
+    min: 0.25,
+    max: 4,
+    step: 0.25,
+  },
   { key: "blockSize", label: "Block size P", min: 8, max: 64, step: 8 },
+  {
+    key: "sharedPrefixTokens",
+    label: "Shared prefix tokens",
+    min: 0,
+    max: 2048,
+    step: 16,
+  },
+  {
+    key: "generateProgress",
+    label: "Generation progress",
+    min: 0,
+    max: 1,
+    step: 0.01,
+  },
 ];
 
 export function ControlPanel() {
   const params = useSimulationStore((s) => s.params);
   const setParam = useSimulationStore((s) => s.setParam);
+  const applyPreset = useSimulationStore((s) => s.applyPreset);
   const reset = useSimulationStore((s) => s.reset);
 
   return (
@@ -38,8 +61,46 @@ export function ControlPanel() {
           Reset
         </button>
       </div>
+
+      <div className={styles.field}>
+        <label htmlFor="preset">
+          <span>Model preset</span>
+          <strong>{modelPresets[params.presetId].label}</strong>
+        </label>
+        <select
+          id="preset"
+          value={params.presetId}
+          onChange={(e) => applyPreset(e.target.value as ModelPresetId)}
+          className={styles.select}
+        >
+          {(Object.keys(modelPresets) as ModelPresetId[]).map((id) => (
+            <option key={id} value={id}>
+              {modelPresets[id].label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className={styles.field}>
+        <label htmlFor="phase">
+          <span>Phase</span>
+          <strong>{params.phase}</strong>
+        </label>
+        <select
+          id="phase"
+          value={params.phase}
+          onChange={(e) => setParam("phase", e.target.value as SimulationParams["phase"])}
+          className={styles.select}
+        >
+          <option value="prefill">prefill</option>
+          <option value="decode">decode</option>
+          <option value="mixed">mixed</option>
+        </select>
+      </div>
+
       {sliders.map((spec) => {
         const value = params[spec.key];
+        if (typeof value !== "number") return null;
         return (
           <div className={styles.field} key={spec.key}>
             <label htmlFor={spec.key}>
@@ -59,8 +120,8 @@ export function ControlPanel() {
         );
       })}
       <p className={styles.hint}>
-        Assumptions mirror <code>docs/glossary.md</code>. Sharing and quant metadata are
-        off unless a module enables them.
+        Metrics follow <code>docs/glossary.md</code>. Sharing / quant metadata are
+        simplified for teaching.
       </p>
     </section>
   );

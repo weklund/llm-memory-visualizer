@@ -1,16 +1,10 @@
-import {
-  formatBytes,
-  internalFragmentationTokens,
-  logicalBlocksForSequence,
-} from "@/lib/kvMemory";
-import { selectKvMetrics, useSimulationStore } from "@/state/simulationStore";
+import { formatBytes } from "@/lib/kvMemory";
+import { selectMetrics, useSimulationStore } from "@/state/simulationStore";
 import styles from "./MetricPanel.module.css";
 
 export function MetricPanel() {
   const params = useSimulationStore((s) => s.params);
-  const kv = selectKvMetrics(params);
-  const blocks = logicalBlocksForSequence(params.sequenceLength, params.blockSize);
-  const frag = internalFragmentationTokens(params.sequenceLength, params.blockSize);
+  const m = selectMetrics(params);
 
   return (
     <section className={styles.panel} aria-labelledby="metrics-heading">
@@ -27,9 +21,10 @@ export function MetricPanel() {
             />
             KV cache (logical)
           </span>
-          <span className={styles.value}>{formatBytes(kv.bytes)}</span>
+          <span className={styles.value}>{formatBytes(m.kvLogical.bytes)}</span>
           <span className={styles.sub}>
-            {kv.mebibytes.toFixed(2)} MiB · {kv.elements.toLocaleString()} elements
+            {m.kvLogical.mebibytes.toFixed(2)} MiB
+            {m.isOom ? " · over HBM budget" : ""}
           </span>
         </li>
         <li className={styles.item}>
@@ -39,22 +34,46 @@ export function MetricPanel() {
               style={{ background: "var(--color-page)" }}
               aria-hidden="true"
             />
-            Logical blocks
+            Pages / waste
           </span>
-          <span className={styles.value}>{blocks}</span>
-          <span className={styles.sub}>P = {params.blockSize} tokens · ceil(S / P)</span>
+          <span className={styles.value}>
+            {m.logicalBlocks} blocks · {m.internalWasteTokens} tok waste
+          </span>
+          <span className={styles.sub}>
+            P={params.blockSize} · holes {m.paging.freeHoles}
+          </span>
         </li>
         <li className={styles.item}>
           <span className={styles.label}>
             <span
               className={styles.swatch}
-              style={{ background: "var(--color-fragment-waste)" }}
+              style={{ background: "var(--color-bandwidth)" }}
               aria-hidden="true"
             />
-            Internal waste (tokens)
+            Phase pressure
           </span>
-          <span className={styles.value}>{frag}</span>
-          <span className={styles.sub}>Unused slots in last block</span>
+          <span className={styles.value}>{params.phase}</span>
+          <span className={styles.sub}>
+            prefill intensity {m.prefillIntensityProxy.toExponential(2)} · decode{" "}
+            {m.decodeIntensityProxy.toExponential(2)} (proxy FLOPs/byte)
+          </span>
+        </li>
+        <li className={styles.item}>
+          <span className={styles.label}>
+            <span
+              className={styles.swatch}
+              style={{ background: "var(--color-value)" }}
+              aria-hidden="true"
+            />
+            Compression / share
+          </span>
+          <span className={styles.value}>
+            {m.compressionRatio.toFixed(2)}× · prefix {m.sharedPrefixTokens}
+          </span>
+          <span className={styles.sub}>
+            quant payload {formatBytes(m.kvQuantizedBytes)} · unique{" "}
+            {m.uniqueSequenceTokens} tok
+          </span>
         </li>
       </ul>
       <p className={styles.formula}>

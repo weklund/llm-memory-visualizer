@@ -58,7 +58,7 @@ export function LessonShell({ module }: LessonShellProps) {
         data-workspace={module.workspace}
       >
         <div className={styles.scene}>
-          <SceneViewport />
+          <SceneViewport slug={module.slug} />
         </div>
         {showLab ? (
           <>

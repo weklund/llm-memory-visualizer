@@ -1,9 +1,14 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { PlaceholderScene } from "@/components/scene/PlaceholderScene";
+import { LessonScene } from "@/components/scene/LessonScene";
 import styles from "./SceneViewport.module.css";
 
-export function SceneViewport() {
+type SceneViewportProps = {
+  /** Module slug from the V2 path registry */
+  slug: string;
+};
+
+export function SceneViewport({ slug }: SceneViewportProps) {
   return (
     <div className={styles.viewport}>
       <span className={styles.label}>3D scene · drag to orbit</span>
@@ -14,7 +19,7 @@ export function SceneViewport() {
         aria-label="Interactive 3D simulation viewport"
       >
         <Suspense fallback={null}>
-          <PlaceholderScene />
+          <LessonScene slug={slug} />
         </Suspense>
       </Canvas>
     </div>
