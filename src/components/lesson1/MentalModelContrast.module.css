@@ -45,7 +45,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  min-height: 8.5rem;
+  /* Fixed stage height so wrap/reset doesn't resize the card */
+  min-height: 10.5rem;
 }
 
 .wrongFlow {
@@ -104,7 +105,8 @@
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-text-subtle);
-  min-height: 1.25rem;
+  min-height: 1.35rem;
+  line-height: 1.35rem;
 }
 
 .runMeter strong {
@@ -116,8 +118,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  align-items: center;
-  min-height: 3.25rem;
+  align-content: flex-start;
+  align-items: flex-start;
+  /* Always reserve two chip rows so wrapping doesn't grow the card mid-loop */
+  min-height: calc(1.85rem * 2 + 0.35rem);
 }
 
 .chip {
@@ -182,6 +186,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-bandwidth);
+  min-height: 1.2rem;
 }
 
 .caption {
