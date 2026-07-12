@@ -2,11 +2,8 @@
  * Fixed schematic demo for lesson 1 (not a real tokenizer / model).
  */
 
+/** Default short prompt (also used by the contrast card). */
 export const DEMO_PROMPT = "Write a haiku about rain.";
-
-/** Longer prompt string for the “long prompt” timeline scenario (still schematic). */
-export const DEMO_LONG_PROMPT =
-  "System: be concise. User doc: notes on weather and mood. Task: Write a haiku about rain.";
 
 /** Schematic “tokens” for the demo reply (fixed path for re-watching). */
 export const DEMO_REPLY_TOKENS = [
@@ -26,12 +23,12 @@ export const DEMO_REPLY_TOKENS = [
 export const DEMO_PRIOR_TURNS = [
   {
     role: "You",
-    text: "What makes rain sound peaceful?",
+    text: "I’m packing for a weekend hike.",
     tokens: 8,
   },
   {
     role: "Model",
-    text: "Soft rhythm, cool air, and distance.",
+    text: "Check the forecast and pack layers.",
     tokens: 10,
   },
 ] as const;
@@ -60,7 +57,8 @@ export const TIMELINE_SCENARIOS: TimelineScenario[] = [
     label: "Longer prompt",
     blurb: "Many tokens already in past before the first reply token.",
     promptTokens: 28,
-    promptDisplay: DEMO_LONG_PROMPT,
+    promptDisplay:
+      "System: be concise. Attached notes (weather, mood, city sounds). Task: summarize in one short image—a haiku about rain on quiet streets at night.",
     priorTurns: [],
     replyTokens: DEMO_REPLY_TOKENS,
   },
@@ -69,7 +67,7 @@ export const TIMELINE_SCENARIOS: TimelineScenario[] = [
     label: "Longer reply",
     blurb: "Short ask; each new reply token joins the past for the next full run.",
     promptTokens: 6,
-    promptDisplay: DEMO_PROMPT,
+    promptDisplay: "Write a haiku about rain.",
     priorTurns: [],
     replyTokens: DEMO_REPLY_TOKENS,
   },
@@ -77,8 +75,9 @@ export const TIMELINE_SCENARIOS: TimelineScenario[] = [
     id: "multi-turn",
     label: "Multi-turn chat",
     blurb: "Earlier turns stay in context while the new reply grows.",
-    promptTokens: 6,
-    promptDisplay: "Write a haiku about rain.",
+    // Slightly longer current user turn so it reads as a follow-up, not a fresh haiku ask
+    promptTokens: 9,
+    promptDisplay: "Should I also pack a rain shell?",
     priorTurns: DEMO_PRIOR_TURNS,
     replyTokens: DEMO_REPLY_TOKENS,
   },
