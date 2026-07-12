@@ -63,16 +63,17 @@ export function GenerationTimeline() {
   }, [done]);
 
   const status = done
-    ? `Done. Model ran ${total} times. Past length is ${pastLength} tokens (prompt + full reply).`
+    ? `Done. The whole model ran ${total} full passes. Past length is ${pastLength} tokens (prompt + full reply).`
     : step === 0
-      ? `Ready. Past is only the prompt (${PROMPT_TOKEN_COUNT} schematic tokens). Next: run the model once.`
-      : `Model run #${step}. Past length = ${pastLength}. Next token: “${nextToken}”.`;
+      ? `Ready. Past is only the prompt (${PROMPT_TOKEN_COUNT} schematic tokens). Next: one full model pass for the first token.`
+      : `Full model pass #${step} produced “${DEMO_REPLY_TOKENS[step - 1]}”. Past length = ${pastLength}. Next pass will choose “${nextToken}”.`;
 
   return (
     <figure className={styles.figure} aria-label="Autoregressive generation timeline">
       <figcaption className={styles.caption}>
-        Fixed demo — same tokens every time. One <strong>Step</strong> = one model run =
-        one new piece of text.
+        Fixed demo — same tokens every time. One <strong>Step</strong> = one{" "}
+        <strong>full pass through the whole model</strong> = one new piece of text—not a
+        lightweight local guess.
       </figcaption>
 
       <p className={styles.prompt}>
@@ -145,8 +146,8 @@ export function GenerationTimeline() {
       </div>
 
       <p className={styles.practice}>
-        <strong>Try this:</strong> Reset, then Step until the reply has 5 tokens. What is
-        past length? Step once more—what is it now?
+        <strong>Try this:</strong> Reset, then Step five times. That is five full model
+        passes—what is past length after the fifth?
       </p>
     </figure>
   );

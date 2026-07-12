@@ -12,24 +12,26 @@ What actually happens is narrower and more mechanical. The model repeatedly asks
 
 Those pieces are **tokens**—sometimes whole words, sometimes fragments, sometimes punctuation. For this lesson, treat them as beads on a string. You do **not** need tokenization details.
 
-## One run, one piece, then append
+## One full model pass, one piece, then again
+
+Important nuance: this is **not** “the model casually picks the next word.” Each next token is the output of a **full pass through the whole model**—then that token is appended, and the **whole model runs again** for the token after that.
 
 Engineers describe generation as a loop:
 
 1. Look at the text so far (your prompt, then anything already written).
-2. Run the model **once** to choose the next token.
+2. Run the **entire** model once → get **one** next token.
 3. **Append** that token to the text so far.
-4. Repeat until the reply stops.
+4. Repeat—another full pass—until the reply stops.
 
-Each step conditions on a **growing past**. That process is called **autoregressive generation**—the name is optional; the loop is not.
+A ten-token reply is roughly **ten full model runs** in a row (plus the work to process the prompt). Each step conditions on a **growing past**. That process is called **autoregressive generation**—the name is optional; the loop of full passes is not.
 
-The interactive below uses one **fixed** demo so you can re-watch the same path. It is schematic, not a live model.
+The interactive below uses one **fixed** demo so you can re-watch the same path. It is schematic, not a live model. Treat every **Step** as one complete model pass.
 
 <GenerationTimeline />
 
-If you remember only one sentence from this lesson, make it this:
+If you remember only two sentences from this lesson, make them these:
 
-> The model did not write the reply all at once. It kept asking “what’s next?” and every answer became part of the past for the next ask.
+> The model did not write the reply all at once. It kept running the **whole model** for “what’s next?” and every answer became part of the past for the next full pass.
 
 ## The past in play keeps growing
 

@@ -195,14 +195,14 @@ export function MentalModelContrast() {
           <div className={styles.stage}>
             <div className={styles.runMeter} aria-live="polite">
               {count === 0 ? (
-                <span>waiting for first model run…</span>
+                <span>waiting for full model pass #1…</span>
               ) : count <= TOKENS.length ? (
                 <span>
-                  model run <strong>#{count}</strong>
-                  {count < TOKENS.length ? (
+                  full model pass <strong>#{count}</strong>
+                  {count < TOKENS.length || phase === "writing" ? (
                     <>
                       {" "}
-                      · appended <strong>{TOKENS[count - 1]}</strong>
+                      → one token: <strong>{TOKENS[count - 1]}</strong>
                     </>
                   ) : (
                     <> · reply complete</>
@@ -211,9 +211,24 @@ export function MentalModelContrast() {
               ) : null}
             </div>
             <div
+              className={[
+                styles.passStrip,
+                phase === "writing" && count > 0 ? styles.passStripActive : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-hidden="true"
+            >
+              <span className={styles.passStripLabel}>whole model</span>
+              <span className={styles.passStripTrack}>
+                <span className={styles.passStripFill} />
+              </span>
+              <span className={styles.passStripOut}>→ 1 token</span>
+            </div>
+            <div
               className={styles.tokenRow}
               role="list"
-              aria-label="Tokens appearing one by one"
+              aria-label="Tokens appearing one by one after full model passes"
             >
               {TOKENS.map((tok, i) => {
                 const visible = i < count;
@@ -240,8 +255,8 @@ export function MentalModelContrast() {
             <p className={styles.nextLine}>{nextLabel}</p>
           </div>
           <p className={styles.caption}>
-            One model run → one small piece → append → run again. The past grows with each
-            piece.
+            Not a light local guess: each step runs the <strong>whole model once</strong>{" "}
+            for <strong>one</strong> token, appends it, then runs the whole model again.
           </p>
         </div>
       </div>
