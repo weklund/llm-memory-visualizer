@@ -27,10 +27,13 @@ export function GenerationTimeline() {
   const playTimer = useRef<number | null>(null);
 
   const pastLength = PROMPT_TOKEN_COUNT + step;
+  const maxPast = PROMPT_TOKEN_COUNT + total;
   const done = step >= total;
   const nextToken = done ? null : DEMO_REPLY_TOKENS[step];
   const replyTokens = DEMO_REPLY_TOKENS.slice(0, step);
   const replySoFar = replyTokens.join(" ");
+  const promptPct = (PROMPT_TOKEN_COUNT / maxPast) * 100;
+  const replyPct = (step / maxPast) * 100;
 
   const clearPassTimer = () => {
     if (passTimer.current != null) {
@@ -115,6 +118,56 @@ export function GenerationTimeline() {
         “the whole thing fires”), then <strong>one</strong> new token is appended.
       </figcaption>
 
+      <div
+        className={styles.meters}
+        aria-label={`Past length ${pastLength} of up to ${maxPast} tokens. Model passes completed ${step} of ${total}.`}
+      >
+        <div className={styles.meterStat}>
+          <span className={styles.meterLabel}>Past length</span>
+          <span className={styles.meterValue}>
+            {pastLength}
+            <span className={styles.meterUnit}> tok</span>
+          </span>
+          <span className={styles.meterSub}>
+            prompt {PROMPT_TOKEN_COUNT} + reply {step}
+          </span>
+        </div>
+        <div className={styles.meterStat}>
+          <span className={styles.meterLabel}>Full model runs</span>
+          <span className={styles.meterValue}>
+            {step}
+            <span className={styles.meterUnit}> / {total}</span>
+          </span>
+          <span className={styles.meterSub}>
+            {done ? "complete" : phase === "running" ? "running…" : "completed so far"}
+          </span>
+        </div>
+        <div className={styles.meterBarBlock}>
+          <div className={styles.meterBarHeader}>
+            <span className={styles.meterLabel}>Token stack</span>
+            <span className={styles.meterBarScale}>
+              {pastLength} / {maxPast}
+            </span>
+          </div>
+          <div className={styles.meterBarTrack} role="presentation">
+            <span
+              className={styles.meterBarPrompt}
+              style={{ width: `${promptPct}%` }}
+              title={`Prompt: ${PROMPT_TOKEN_COUNT} tokens`}
+            />
+            <span
+              className={styles.meterBarReply}
+              style={{ width: `${replyPct}%` }}
+              title={`Reply so far: ${step} tokens`}
+            />
+          </div>
+          <div className={styles.meterLegend}>
+            <span className={styles.legendPrompt}>prompt</span>
+            <span className={styles.legendReply}>reply</span>
+          </div>
+        </div>
+      </div>
+
       <div className={styles.contextBox} id="gen-timeline-context">
         <span className={styles.contextLabel}>Context the next pass sees</span>
         <p className={styles.contextText}>
@@ -130,10 +183,6 @@ export function GenerationTimeline() {
           ) : !done ? (
             <span className={styles.cursor} aria-hidden="true" />
           ) : null}
-        </p>
-        <p className={styles.contextMeta}>
-          Past length: <strong>{pastLength}</strong> tokens
-          {done ? " (final)" : ` · pass ${Math.min(step + 1, total)} / ${total}`}
         </p>
       </div>
 

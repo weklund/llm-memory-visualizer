@@ -14,6 +14,138 @@
   line-height: 1.45;
 }
 
+/* Distinct counter strip — not mixed into the context prose */
+.meters {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr 1fr;
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--color-bg-muted));
+}
+
+@media (min-width: 560px) {
+  .meters {
+    grid-template-columns: auto auto 1fr;
+    align-items: end;
+  }
+}
+
+.meterStat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 5.5rem;
+}
+
+.meterLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-subtle);
+}
+
+.meterValue {
+  font-family: var(--font-mono);
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.meterUnit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.meterSub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-subtle);
+}
+
+.meterBarBlock {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+@media (min-width: 560px) {
+  .meterBarBlock {
+    grid-column: auto;
+  }
+}
+
+.meterBarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.meterBarScale {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-subtle);
+}
+
+.meterBarTrack {
+  display: flex;
+  width: 100%;
+  height: 0.85rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border);
+}
+
+.meterBarPrompt {
+  display: block;
+  height: 100%;
+  background: color-mix(in srgb, var(--color-key) 70%, var(--color-bg-muted));
+  transition: width 280ms var(--ease-out);
+}
+
+.meterBarReply {
+  display: block;
+  height: 100%;
+  background: color-mix(in srgb, var(--color-token) 75%, var(--color-bg-muted));
+  transition: width 280ms var(--ease-out);
+}
+
+.meterLegend {
+  display: flex;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-subtle);
+}
+
+.legendPrompt::before,
+.legendReply::before {
+  content: "";
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 2px;
+  margin-right: 0.3rem;
+  vertical-align: -0.05rem;
+}
+
+.legendPrompt::before {
+  background: color-mix(in srgb, var(--color-key) 70%, var(--color-bg-muted));
+}
+
+.legendReply::before {
+  background: color-mix(in srgb, var(--color-token) 75%, var(--color-bg-muted));
+}
+
 .contextBox {
   margin: 0 0 var(--space-4);
   padding: var(--space-3);
@@ -33,7 +165,7 @@
 }
 
 .contextText {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-size: var(--text-base);
   line-height: 1.5;
   color: var(--color-text);
@@ -67,17 +199,6 @@
   50% {
     opacity: 0;
   }
-}
-
-.contextMeta {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--color-text-subtle);
-}
-
-.contextMeta strong {
-  color: var(--color-text);
 }
 
 .feedNote {
