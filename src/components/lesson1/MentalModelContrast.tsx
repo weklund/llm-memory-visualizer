@@ -6,6 +6,8 @@ import styles from "./MentalModelContrast.module.css";
 const TOKENS = DEMO_REPLY_TOKENS;
 const FULL_TEXT = TOKENS.join(" ").replace(" — ", "—");
 
+type WrongPhase = "think" | "dump" | "hold";
+
 /**
  * V0 — wrong model (whole paragraph at once) vs next-token loop (tokens land one by one).
  */
@@ -13,23 +15,27 @@ export function MentalModelContrast() {
   const reduceMotion = usePrefersReducedMotion();
   const [count, setCount] = useState(reduceMotion ? TOKENS.length : 0);
   const [phase, setPhase] = useState<"writing" | "hold" | "reset">("writing");
-  /** Left card: whole dump flash */
-  const [dumped, setDumped] = useState(reduceMotion);
+  const [wrongPhase, setWrongPhase] = useState<WrongPhase>(
+    reduceMotion ? "dump" : "think",
+  );
 
   useEffect(() => {
     if (reduceMotion) {
       setCount(TOKENS.length);
-      setDumped(true);
+      setWrongPhase("dump");
       return;
     }
 
-    // Left: re-dump the whole paragraph on a slower cycle (all-at-once)
-    let dumpOn = true;
-    setDumped(true);
-    const dumpTimer = window.setInterval(() => {
-      dumpOn = !dumpOn;
-      setDumped(dumpOn);
-    }, 3200);
+    // Left: think (empty) → dump all → hold → clear → think…
+    let t = 0;
+    setWrongPhase("think");
+    const wrongTimer = window.setInterval(() => {
+      t += 1;
+      const beat = t % 7;
+      if (beat <= 2) setWrongPhase("think");
+      else if (beat === 3) setWrongPhase("dump");
+      else setWrongPhase("hold"); // 4–6 hold the full dump
+    }, 700);
 
     // Right: one token per beat
     let i = 0;
@@ -50,7 +56,7 @@ export function MentalModelContrast() {
     }, 550);
 
     return () => {
-      window.clearInterval(dumpTimer);
+      window.clearInterval(wrongTimer);
       window.clearInterval(stepTimer);
     };
   }, [reduceMotion]);
@@ -62,6 +68,9 @@ export function MentalModelContrast() {
         ? `next: ${TOKENS[count]}`
         : "done · restarting…";
 
+  const showDump = wrongPhase === "dump" || wrongPhase === "hold";
+  const justDumped = wrongPhase === "dump";
+
   return (
     <figure
       className={styles.figure}
@@ -71,16 +80,70 @@ export function MentalModelContrast() {
         <div className={styles.card}>
           <p className={styles.label}>Common mental model</p>
           <div className={styles.stage}>
-            <div className={styles.wrongFlow} aria-hidden="true">
-              <span className={styles.think}>think</span>
-              <span className={styles.arrow}>→</span>
-              <span className={styles.dumpTag}>dump all at once</span>
-            </div>
             <div
-              className={`${styles.paragraphBlock} ${dumped ? styles.paragraphIn : styles.paragraphOut}`}
+              className={styles.wrongFlow}
+              aria-live="polite"
+              aria-label={
+                wrongPhase === "think"
+                  ? "Phase: thinking about the whole answer"
+                  : "Phase: dump the whole answer at once"
+              }
             >
-              {FULL_TEXT}
+              <span
+                className={[
+                  styles.phasePill,
+                  wrongPhase === "think"
+                    ? styles.phasePillActiveThink
+                    : styles.phasePillIdle,
+                ].join(" ")}
+              >
+                {wrongPhase === "think" ? "▸ think" : "think"}
+              </span>
+              <span
+                className={[styles.arrow, showDump ? styles.arrowActive : ""]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-hidden="true"
+              >
+                →
+              </span>
+              <span
+                className={[
+                  styles.phasePill,
+                  showDump ? styles.phasePillActiveDump : styles.phasePillIdle,
+                ].join(" ")}
+              >
+                {showDump ? "▸ dump all at once" : "dump all at once"}
+              </span>
             </div>
+
+            <div
+              className={[
+                styles.paragraphBlock,
+                showDump ? styles.paragraphIn : styles.paragraphThink,
+                justDumped ? styles.paragraphPop : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {showDump ? (
+                FULL_TEXT
+              ) : (
+                <span className={styles.thinkPlaceholder}>
+                  <span className={styles.thinkDots} aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  forming the whole answer…
+                </span>
+              )}
+            </div>
+            <p className={styles.phaseStatus}>
+              {wrongPhase === "think"
+                ? "Step 1 — “think” (no tokens yet)"
+                : "Step 2 — entire reply appears in one shot"}
+            </p>
           </div>
           <p className={styles.caption}>
             Whole answer appears as one finished block—no intermediate pieces.

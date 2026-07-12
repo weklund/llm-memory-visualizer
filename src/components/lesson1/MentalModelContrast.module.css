@@ -46,7 +46,7 @@
   flex-direction: column;
   gap: var(--space-3);
   /* Fixed stage height so wrap/reset doesn't resize the card */
-  min-height: 10.5rem;
+  min-height: 11.5rem;
 }
 
 .wrongFlow {
@@ -56,24 +56,53 @@
   gap: var(--space-2);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--color-text-subtle);
+  min-height: 1.75rem;
 }
 
-.think,
-.dumpTag {
+.phasePill {
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   background: var(--color-bg-panel);
+  color: var(--color-text-subtle);
+  transition:
+    color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out),
+    background 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
 }
 
-.dumpTag {
-  color: var(--color-danger);
-  border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+.phasePillIdle {
+  opacity: 0.55;
+}
+
+.phasePillActiveThink {
+  color: var(--color-key);
+  border-color: color-mix(in srgb, var(--color-key) 55%, var(--color-border));
+  background: color-mix(in srgb, var(--color-key) 16%, var(--color-bg-panel));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-key) 35%, transparent);
+  opacity: 1;
+}
+
+.phasePillActiveDump {
+  color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 55%, var(--color-border));
+  background: color-mix(in srgb, var(--color-warning) 16%, var(--color-bg-panel));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-warning) 35%, transparent);
+  opacity: 1;
 }
 
 .arrow {
-  opacity: 0.7;
+  opacity: 0.35;
+  color: var(--color-text-subtle);
+  transition:
+    opacity 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+
+.arrowActive {
+  opacity: 1;
+  color: var(--color-warning);
 }
 
 .paragraphBlock {
@@ -86,19 +115,97 @@
   line-height: 1.45;
   color: var(--color-text-muted);
   min-height: 4.25rem;
+  display: flex;
+  align-items: center;
   transition:
     opacity 180ms var(--ease-out),
-    transform 180ms var(--ease-out);
+    transform 180ms var(--ease-out),
+    border-color 180ms var(--ease-out),
+    background 180ms var(--ease-out);
+}
+
+.paragraphThink {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--color-key) 40%, var(--color-border));
+  background: color-mix(in srgb, var(--color-key) 6%, var(--color-bg-panel));
 }
 
 .paragraphIn {
   opacity: 1;
   transform: scale(1);
+  color: var(--color-text);
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-bg-panel));
 }
 
-.paragraphOut {
-  opacity: 0.15;
-  transform: scale(0.98);
+.paragraphPop {
+  animation: dumpPop 420ms var(--ease-out);
+}
+
+@keyframes dumpPop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.thinkPlaceholder {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.thinkDots {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.thinkDots i {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--color-key);
+  opacity: 0.35;
+  animation: thinkBounce 1s ease-in-out infinite;
+}
+
+.thinkDots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.thinkDots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes thinkBounce {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.phaseStatus {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+  min-height: 1.2rem;
 }
 
 .runMeter {
@@ -198,11 +305,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .paragraphBlock,
-  .chip {
+  .chip,
+  .phasePill,
+  .arrow {
     transition: none;
   }
 
-  .chipNext {
+  .chipNext,
+  .thinkDots i,
+  .paragraphPop {
     animation: none;
   }
 
@@ -210,8 +321,7 @@
     transform: none;
   }
 
-  .paragraphOut {
-    opacity: 1;
-    transform: none;
+  .paragraphThink {
+    border-style: solid;
   }
 }
