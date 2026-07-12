@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   CONTEXT_SCENARIOS,
   DEMO_REPLY_TOKENS,
+  TIMELINE_SCENARIOS,
   contextLengthAtStep,
+  maxPastLength,
+  pastLengthAt,
+  priorTokens,
   seriesForScenario,
 } from "./lesson1Demo";
 
@@ -23,5 +27,26 @@ describe("lesson1Demo", () => {
       expect(series[0]?.tokens).toBe(s.baseTokens);
       expect(series.at(-1)?.tokens).toBe(s.baseTokens + s.replySteps);
     }
+  });
+
+  it("timeline scenarios share the same reply path", () => {
+    for (const s of TIMELINE_SCENARIOS) {
+      expect([...s.replyTokens]).toEqual([...DEMO_REPLY_TOKENS]);
+    }
+  });
+
+  it("long prompt starts taller than growing-reply", () => {
+    const longP = TIMELINE_SCENARIOS.find((s) => s.id === "long-prompt")!;
+    const grow = TIMELINE_SCENARIOS.find((s) => s.id === "growing-reply")!;
+    expect(pastLengthAt(longP, 0)).toBeGreaterThan(pastLengthAt(grow, 0));
+  });
+
+  it("multi-turn includes prior tokens in the past", () => {
+    const multi = TIMELINE_SCENARIOS.find((s) => s.id === "multi-turn")!;
+    expect(priorTokens(multi)).toBeGreaterThan(0);
+    expect(pastLengthAt(multi, 0)).toBe(priorTokens(multi) + multi.promptTokens);
+    expect(maxPastLength(multi)).toBe(
+      priorTokens(multi) + multi.promptTokens + multi.replyTokens.length,
+    );
   });
 });

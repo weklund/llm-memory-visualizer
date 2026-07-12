@@ -35,17 +35,17 @@ If you remember only two sentences from this lesson, make them these:
 
 ## The past in play keeps growing
 
-The same loop explains three everyday situations:
+The same loop explains three everyday situations—use the **scenario switch** on the timeline above to feel each one:
 
-| What you do                         | What grows for the next token                   |
-| ----------------------------------- | ----------------------------------------------- |
-| You send a **longer prompt**        | More tokens exist before the first output token |
-| The model writes a **longer reply** | Each new token joins the past for the next step |
-| You continue a **multi-turn chat**  | Earlier turns usually stay in context           |
+| What you do                         | What grows for the next token                   | Timeline scenario |
+| ----------------------------------- | ----------------------------------------------- | ----------------- |
+| You send a **longer prompt**        | More tokens exist before the first output token | Longer prompt     |
+| The model writes a **longer reply** | Each new token joins the past for the next step | Longer reply      |
+| You continue a **multi-turn chat**  | Earlier turns usually stay in context           | Multi-turn chat   |
 
 Nothing mystical: the loop always asks “what next, given so far?”—and “so far” is simply longer. That is why systems care about **sequence length** long before we talk about GPUs.
 
-Compare three scenarios. Watch how tall the stack gets:
+Summary curves of the same idea (how tall the stack gets over reply steps):
 
 <ContextGrowthChart />
 

@@ -1,24 +1,39 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { DEMO_PROMPT, DEMO_REPLY_TOKENS } from "@/lib/lesson1Demo";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  TIMELINE_SCENARIOS,
+  maxPastLength,
+  pastLengthAt,
+  priorTokens,
+  type TimelineScenarioId,
+} from "@/lib/lesson1Demo";
 import { usePrefersReducedMotion } from "@/lib/prefersReducedMotion";
 import styles from "./GenerationTimeline.module.css";
 
-/** Schematic prompt size for “past length” (not a real tokenizer). */
-const PROMPT_TOKEN_COUNT = 6;
 const LAYER_COUNT = 5;
-/** Time for the schematic layer sweep before the token lands */
 const PASS_MS = 900;
-/** Pause after a token lands before the next autoplay pass */
 const GAP_MS = 500;
+/** Cap prompt dots in mini-context so long prompts stay readable */
+const MINI_PROMPT_CAP = 16;
+const MINI_PRIOR_CAP = 12;
 
-type PassPhase = "idle" | "running" | "done";
+type PassPhase = "idle" | "running";
 
 /**
- * V1 — step through autoregressive generation with an explicit “full model pass”
- * beat between tokens (builds on the high-level contrast card above).
+ * Step through autoregressive generation with scenario bases (long prompt /
+ * growing reply / multi-turn) and an explicit full-model-run beat per token.
  */
 export function GenerationTimeline() {
-  const total = DEMO_REPLY_TOKENS.length;
+  const [scenarioId, setScenarioId] = useState<TimelineScenarioId>("growing-reply");
+  const scenario = useMemo(
+    () => TIMELINE_SCENARIOS.find((s) => s.id === scenarioId) ?? TIMELINE_SCENARIOS[1]!,
+    [scenarioId],
+  );
+
+  const replyPath = scenario.replyTokens;
+  const total = replyPath.length;
+  const prior = priorTokens(scenario);
+  const promptN = scenario.promptTokens;
+
   const [step, setStep] = useState(0);
   const [phase, setPhase] = useState<PassPhase>("idle");
   const [playing, setPlaying] = useState(false);
@@ -26,14 +41,19 @@ export function GenerationTimeline() {
   const passTimer = useRef<number | null>(null);
   const playTimer = useRef<number | null>(null);
 
-  const pastLength = PROMPT_TOKEN_COUNT + step;
-  const maxPast = PROMPT_TOKEN_COUNT + total;
+  const pastLength = pastLengthAt(scenario, step);
+  const maxPast = maxPastLength(scenario);
   const done = step >= total;
-  const nextToken = done ? null : DEMO_REPLY_TOKENS[step];
-  const replyTokens = DEMO_REPLY_TOKENS.slice(0, step);
+  const nextToken = done ? null : replyPath[step];
+  const replyTokens = replyPath.slice(0, step);
   const replySoFar = replyTokens.join(" ");
-  const promptPct = (PROMPT_TOKEN_COUNT / maxPast) * 100;
-  const replyPct = (step / maxPast) * 100;
+
+  const priorPct = maxPast > 0 ? (prior / maxPast) * 100 : 0;
+  const promptPct = maxPast > 0 ? (promptN / maxPast) * 100 : 0;
+  const replyPct = maxPast > 0 ? (step / maxPast) * 100 : 0;
+
+  const miniPromptDots = Math.min(promptN, MINI_PROMPT_CAP);
+  const miniPriorDots = Math.min(prior, MINI_PRIOR_CAP);
 
   const clearPassTimer = () => {
     if (passTimer.current != null) {
@@ -52,6 +72,14 @@ export function GenerationTimeline() {
   const clearAll = () => {
     clearPassTimer();
     clearPlayTimer();
+  };
+
+  const selectScenario = (id: TimelineScenarioId) => {
+    clearAll();
+    setPlaying(false);
+    setPhase("idle");
+    setStep(0);
+    setScenarioId(id);
   };
 
   const runOnePass = useCallback(() => {
@@ -79,7 +107,6 @@ export function GenerationTimeline() {
     setStep(0);
   };
 
-  // Autoplay: after each pass settles, schedule the next
   useEffect(() => {
     if (!playing || reduceMotion) return;
     if (step >= total) {
@@ -101,22 +128,49 @@ export function GenerationTimeline() {
 
   useEffect(() => () => clearAll(), []);
 
+  const breakdown =
+    prior > 0
+      ? `prior ${prior} + prompt ${promptN} + reply ${step}`
+      : `prompt ${promptN} + reply ${step}`;
+
   const status =
     phase === "running" && nextToken
-      ? `Pass ${step + 1} of ${total}: whole model is running on the context so far → will emit “${nextToken}”.`
+      ? `Pass ${step + 1} of ${total}: full model run on past (${pastLength} tok) → “${nextToken}”.`
       : done
-        ? `Done. ${total} full model passes. Past length = ${pastLength} (prompt ${PROMPT_TOKEN_COUNT} + reply ${total}).`
+        ? `Done. ${total} full model runs. Final past length = ${pastLength} (${breakdown}).`
         : step === 0
-          ? `Past = prompt only (${PROMPT_TOKEN_COUNT} tokens). Next Step runs the whole model once for the first reply token.`
-          : `Last pass produced “${DEMO_REPLY_TOKENS[step - 1]}”. Past length = ${pastLength}. Next Step = another full pass.`;
+          ? `Past already has ${pastLength} tokens before any new reply (${breakdown}). Next Step = one full model run for the first reply token.`
+          : `Last pass produced “${replyPath[step - 1]}”. Past length = ${pastLength}. Next Step = another full run.`;
 
   return (
     <figure className={styles.figure} aria-label="Full model pass then next token">
       <figcaption className={styles.caption}>
-        Same fixed demo as above. Each <strong>Step</strong> is one{" "}
-        <strong>complete run of the full model</strong> (the bars are just a picture of
-        “the whole thing fires”), then <strong>one</strong> new token is appended.
+        Same loop every time: <strong>full model run → one token → past grows</strong>.
+        Switch scenarios to see what makes the past tall.
       </figcaption>
+
+      <div
+        className={styles.scenarios}
+        role="radiogroup"
+        aria-label="What makes past grow"
+      >
+        {TIMELINE_SCENARIOS.map((s) => (
+          <label
+            key={s.id}
+            className={s.id === scenarioId ? styles.scenarioActive : styles.scenario}
+          >
+            <input
+              type="radio"
+              name="timeline-scenario"
+              value={s.id}
+              checked={s.id === scenarioId}
+              onChange={() => selectScenario(s.id)}
+            />
+            {s.label}
+          </label>
+        ))}
+      </div>
+      <p className={styles.scenarioBlurb}>{scenario.blurb}</p>
 
       <div
         className={styles.meters}
@@ -128,9 +182,7 @@ export function GenerationTimeline() {
             {pastLength}
             <span className={styles.meterUnit}> tok</span>
           </span>
-          <span className={styles.meterSub}>
-            prompt {PROMPT_TOKEN_COUNT} + reply {step}
-          </span>
+          <span className={styles.meterSub}>{breakdown}</span>
         </div>
         <div className={styles.meterStat}>
           <span className={styles.meterLabel}>Full model runs</span>
@@ -150,10 +202,17 @@ export function GenerationTimeline() {
             </span>
           </div>
           <div className={styles.meterBarTrack} role="presentation">
+            {prior > 0 ? (
+              <span
+                className={styles.meterBarPrior}
+                style={{ width: `${priorPct}%` }}
+                title={`Earlier turns: ${prior} tokens`}
+              />
+            ) : null}
             <span
               className={styles.meterBarPrompt}
               style={{ width: `${promptPct}%` }}
-              title={`Prompt: ${PROMPT_TOKEN_COUNT} tokens`}
+              title={`Prompt: ${promptN} tokens`}
             />
             <span
               className={styles.meterBarReply}
@@ -162,16 +221,28 @@ export function GenerationTimeline() {
             />
           </div>
           <div className={styles.meterLegend}>
+            {prior > 0 ? <span className={styles.legendPrior}>earlier turns</span> : null}
             <span className={styles.legendPrompt}>prompt</span>
             <span className={styles.legendReply}>reply</span>
           </div>
         </div>
       </div>
 
-      <div className={styles.contextBox} id="gen-timeline-context">
+      <div className={styles.contextBox}>
         <span className={styles.contextLabel}>Context the next pass sees</span>
+        {scenario.priorTurns.length > 0 ? (
+          <div className={styles.turnBands}>
+            {scenario.priorTurns.map((t, i) => (
+              <div key={i} className={styles.turnBand}>
+                <span className={styles.turnRole}>{t.role}</span>
+                <span className={styles.turnText}>{t.text}</span>
+                <span className={styles.turnTok}>{t.tokens} tok</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <p className={styles.contextText}>
-          <span className={styles.promptText}>{DEMO_PROMPT}</span>
+          <span className={styles.promptText}>{scenario.promptDisplay}</span>
           {replySoFar ? (
             <>
               {" "}
@@ -203,11 +274,24 @@ export function GenerationTimeline() {
             .join(" ")}
         >
           <span className={styles.pipeTag}>in · mini context</span>
-          <div className={styles.miniContext} title="Same past text as the box above">
+          <div className={styles.miniContext} title="Same past as the box above">
+            {prior > 0 ? (
+              <span className={styles.miniPriorRow}>
+                {Array.from({ length: miniPriorDots }, (_, i) => (
+                  <span key={`pr-${i}`} className={styles.miniPriorChip} />
+                ))}
+                {prior > MINI_PRIOR_CAP ? (
+                  <span className={styles.miniMore}>+{prior - MINI_PRIOR_CAP}</span>
+                ) : null}
+              </span>
+            ) : null}
             <span className={styles.miniPromptRow}>
-              {Array.from({ length: PROMPT_TOKEN_COUNT }, (_, i) => (
+              {Array.from({ length: miniPromptDots }, (_, i) => (
                 <span key={`mp-${i}`} className={styles.miniPromptChip} />
               ))}
+              {promptN > MINI_PROMPT_CAP ? (
+                <span className={styles.miniMore}>+{promptN - MINI_PROMPT_CAP}</span>
+              ) : null}
             </span>
             {replyTokens.length > 0 ? (
               <span className={styles.miniReplyRow}>
@@ -254,7 +338,7 @@ export function GenerationTimeline() {
             {phase === "running" && nextToken
               ? nextToken
               : step > 0
-                ? DEMO_REPLY_TOKENS[step - 1]
+                ? replyPath[step - 1]
                 : "—"}
           </span>
           <span className={styles.pipeOutNote}>1 token</span>
@@ -262,7 +346,7 @@ export function GenerationTimeline() {
       </div>
 
       <div className={styles.tokenStrip} role="list" aria-label="Reply tokens so far">
-        {DEMO_REPLY_TOKENS.map((tok, i) => {
+        {replyPath.map((tok, i) => {
           const written = i < step;
           const pending = i === step && phase === "running";
           return (
@@ -311,8 +395,9 @@ export function GenerationTimeline() {
       </div>
 
       <p className={styles.practice}>
-        <strong>Try this:</strong> Reset, then Step five times. You should see five full
-        passes and past length = {PROMPT_TOKEN_COUNT + 5}.
+        <strong>Try this:</strong> Switch to <em>Longer prompt</em>—past length starts
+        high before any reply. Then <em>Multi-turn</em>—earlier turns sit under the
+        current prompt. In every case, Step still adds one token after one full model run.
       </p>
     </figure>
   );
