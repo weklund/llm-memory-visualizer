@@ -5,6 +5,7 @@ import {
   type Phase,
   type SimulationMetrics,
 } from "@/lib/simulationMetrics";
+import type { EvictionPolicy } from "@/lib/eviction";
 import type { KvMemoryParams } from "@/lib/kvMemory";
 
 export type SimulationParams = KvMemoryParams & {
@@ -13,9 +14,15 @@ export type SimulationParams = KvMemoryParams & {
   quantBytesPerElement: number;
   sharedPrefixTokens: number;
   phase: Phase;
-  /** Visible generation step for lesson 1 animation (0..1) */
+  /** Visible generation step for animations (0..1) */
   generateProgress: number;
   presetId: ModelPresetId;
+  /** Lesson 8 eviction teaching policy */
+  evictionPolicy: EvictionPolicy;
+  /** Max tokens retained under eviction demos */
+  evictionBudget: number;
+  /** Lesson 9: isolate cache per tenant vs share */
+  cacheIsolation: boolean;
 };
 
 export type SimulationState = {
@@ -40,10 +47,13 @@ const defaultParams: SimulationParams = {
   blockSize: 16,
   hbmBudgetBytes: 2 * 1024 ** 3,
   quantBytesPerElement: preset.params.bytesPerElement,
-  sharedPrefixTokens: 0,
+  sharedPrefixTokens: 128,
   phase: "decode",
   generateProgress: 0.55,
   presetId: defaultPresetId,
+  evictionPolicy: "h2o",
+  evictionBudget: 12,
+  cacheIsolation: false,
 };
 
 export const useSimulationStore = create<SimulationState>((set) => ({
@@ -81,7 +91,7 @@ export function selectMetrics(params: SimulationParams): SimulationMetrics {
     blockSize: params.blockSize,
     hbmBudgetBytes: params.hbmBudgetBytes,
     quantBytesPerElement: params.quantBytesPerElement,
-    sharedPrefixTokens: params.sharedPrefixTokens,
+    sharedPrefixTokens: params.cacheIsolation ? 0 : params.sharedPrefixTokens,
     phase: params.phase,
   });
 }

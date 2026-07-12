@@ -1,10 +1,4 @@
-import {
-  Assumptions,
-  Checkpoint,
-  Formula,
-  Sources,
-  TryThis,
-} from "./LessonCallouts";
+import { Assumptions, Checkpoint, Formula, Sources, TryThis } from "./LessonCallouts";
 
 /** Components available inside lesson MDX files. */
 export const mdxComponents = {

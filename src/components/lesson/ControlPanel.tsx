@@ -1,4 +1,5 @@
 import { modelPresets, type ModelPresetId } from "@/lib/modelPresets";
+import type { EvictionPolicy } from "@/lib/eviction";
 import { useSimulationStore, type SimulationParams } from "@/state/simulationStore";
 import styles from "./ControlPanel.module.css";
 
@@ -37,6 +38,13 @@ const sliders: SliderSpec[] = [
     min: 0,
     max: 2048,
     step: 16,
+  },
+  {
+    key: "evictionBudget",
+    label: "Eviction budget (tokens kept)",
+    min: 4,
+    max: 32,
+    step: 1,
   },
   {
     key: "generateProgress",
@@ -94,7 +102,42 @@ export function ControlPanel() {
         >
           <option value="prefill">prefill</option>
           <option value="decode">decode</option>
-          <option value="mixed">mixed</option>
+          <option value="mixed">mixed (chunked hybrid)</option>
+        </select>
+      </div>
+
+      <div className={styles.field}>
+        <label htmlFor="evictionPolicy">
+          <span>Eviction policy</span>
+          <strong>{params.evictionPolicy}</strong>
+        </label>
+        <select
+          id="evictionPolicy"
+          value={params.evictionPolicy}
+          onChange={(e) => setParam("evictionPolicy", e.target.value as EvictionPolicy)}
+          className={styles.select}
+        >
+          <option value="none">none (keep all)</option>
+          <option value="window">window (recent only)</option>
+          <option value="sinks">sinks + window</option>
+          <option value="heavy">heavy hitters + window</option>
+          <option value="h2o">h2o-style mix</option>
+        </select>
+      </div>
+
+      <div className={styles.field}>
+        <label htmlFor="cacheIsolation">
+          <span>Cache isolation</span>
+          <strong>{params.cacheIsolation ? "on (per tenant)" : "off (shared)"}</strong>
+        </label>
+        <select
+          id="cacheIsolation"
+          value={params.cacheIsolation ? "on" : "off"}
+          onChange={(e) => setParam("cacheIsolation", e.target.value === "on")}
+          className={styles.select}
+        >
+          <option value="off">shared pool (efficient, riskier)</option>
+          <option value="on">isolated (safer, less reuse)</option>
         </select>
       </div>
 
@@ -120,8 +163,8 @@ export function ControlPanel() {
         );
       })}
       <p className={styles.hint}>
-        Metrics follow <code>docs/glossary.md</code>. Sharing / quant metadata are
-        simplified for teaching.
+        Metrics follow <code>docs/glossary.md</code>. Sharing / quant / eviction are
+        teaching models, not production counters.
       </p>
     </section>
   );

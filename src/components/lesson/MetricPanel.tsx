@@ -1,4 +1,5 @@
 import { estimateWeightBytes, formatBytes } from "@/lib/kvMemory";
+import { memorySavedRatio, planTokenKeep } from "@/lib/eviction";
 import { modelPresets } from "@/lib/modelPresets";
 import { selectMetrics, useSimulationStore } from "@/state/simulationStore";
 import styles from "./MetricPanel.module.css";
@@ -12,6 +13,12 @@ export function MetricPanel() {
     params.bytesPerElement,
   );
   const kvVsWeights = weightBytes > 0 ? m.kvLogical.bytes / weightBytes : 0;
+  const evictionPlan = planTokenKeep({
+    sequenceLength: 16,
+    budgetTokens: params.evictionBudget,
+    policy: params.evictionPolicy,
+  });
+  const evictionSaved = memorySavedRatio(evictionPlan);
 
   return (
     <section className={styles.panel} aria-labelledby="metrics-heading">
@@ -94,6 +101,23 @@ export function MetricPanel() {
           <span className={styles.sub}>
             quant payload {formatBytes(m.kvQuantizedBytes)} · unique{" "}
             {m.uniqueSequenceTokens} tok
+            {params.cacheIsolation ? " · isolation on" : ""}
+          </span>
+        </li>
+        <li className={styles.item}>
+          <span className={styles.label}>
+            <span
+              className={styles.swatch}
+              style={{ background: "var(--color-token)" }}
+              aria-hidden="true"
+            />
+            Eviction demo (16-tok stream)
+          </span>
+          <span className={styles.value}>
+            {params.evictionPolicy} · keep {evictionPlan.kept.length}
+          </span>
+          <span className={styles.sub}>
+            drop {(evictionSaved * 100).toFixed(0)}% of display tokens · not quality
           </span>
         </li>
       </ul>

@@ -22,7 +22,7 @@ export function PrefillDecodeScene() {
             ? "prefill · compute-heavy"
             : phase === "decode"
               ? "decode · memory-heavy"
-              : "mixed batch"
+              : "mixed · chunked prefill + decode"
         }
       />
       <group position={[0, 0.2, 0]}>

@@ -1,0 +1,64 @@
+## Learning goal
+
+Explain **bounded-cache** strategies that drop tokens on purpose—windows, attention sinks, and heavy hitters—and state the **quality risk** honestly.
+
+## Builds on lessons 2–3
+
+- Attention mass is uneven (lesson 2).
+- Full history KV grows without bound in `S` (lesson 3).
+
+## Why forget?
+
+For very long streams, keeping every past token’s K/V is impossible. Systems **evict** entries under a budget. That is **lossy** relative to full context: “stream forever” ≠ “remember everything perfectly.”
+
+## Policy family (teaching)
+
+| Policy             | Keep                                      | Drop intuition   | Anchors            |
+| ------------------ | ----------------------------------------- | ---------------- | ------------------ |
+| **Window**         | Last `W` tokens                           | Everything older | Sliding window     |
+| **Sinks + window** | First `K` + last `W`                      | Middle mass      | StreamingLLM `S19` |
+| **Heavy + window** | High cumulative-attention tokens + recent | Low-score middle | H₂O flavor `S18`   |
+| **H₂O-style mix**  | Sinks + heavies + recent under one budget | Rest             | Combined intuition |
+
+SnapKV-style observation windows and other sparsifiers exist; we keep the lab to this family so tradeoffs stay visible.
+
+## What the scene shows
+
+- Token stream: **bright = kept**, **dim = evicted** under the selected policy + **Eviction budget**.
+- Attention surface: sinks (●) and heavy hitters (■) as in lesson 2—now tied to _why_ some indices survive.
+
+Metrics do not invent perplexity. We only show **how many tokens left the keep-set** (capacity story). Quality impact is **task- and model-dependent**—quote papers carefully.
+
+<TryThis>
+
+- Set policy to **window** with a small budget: early tokens go dim—even if they were sinks.
+- Switch to **sinks + window**: early tokens return.
+- Try **h2o-style mix**: sinks and mid “heavies” compete with recency under the same budget.
+- Raise **Eviction budget**: fewer dim beads.
+
+</TryThis>
+
+<Checkpoint>
+
+- Why can the **first** tokens matter even when they are far from the end?
+- What does a pure window risk that sinks address?
+- Is eviction free quality-wise? (No.)
+
+</Checkpoint>
+
+<Assumptions>
+
+- Keep-sets are **deterministic demos**, not live attention scores from a checkpoint.
+- Budget is in **display tokens**, not full `S=128k` meshes.
+- No claimed “0% quality loss” in the UI—read papers for measured regimes.
+
+</Assumptions>
+
+<Sources>
+
+- `S18` Zhang et al., H₂O heavy-hitter oracle. https://arxiv.org/abs/2306.14048
+- `S19` Xiao et al., StreamingLLM / attention sinks. https://arxiv.org/abs/2309.17453
+- `S20` Q-Hitter (optional deeper read).
+- Glossary: eviction, sink, heavy hitter in `docs/glossary.md`.
+
+</Sources>

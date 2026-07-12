@@ -40,8 +40,7 @@ export const stageLabels: Record<ModuleStage, string> = {
  * Canonical module registry. Array order = learning path / prev-next nav.
  * Keep in sync with docs/learning-outcomes.md.
  *
- * MVP (Milestone 3): lessons 1–5 and 7 marked ready (foundations, core memory,
- * packing, quantization). Lessons 6, 8, 9 remain advanced path stubs.
+ * Full path ready through lesson 9 (Milestones 3–4).
  */
 export const modules: ModuleDefinition[] = [
   {
@@ -125,8 +124,8 @@ export const modules: ModuleDefinition[] = [
     buildsOn: "Lessons 3–5 — cache contents and page-friendly layout",
     stage: "systems",
     workspace: "memory-lab",
-    status: "placeholder",
-    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+    status: "ready",
+    loadContent: () => import("@/content/lessons/module-06-reusing-work.mdx"),
   },
   {
     id: "module-07",
@@ -153,8 +152,8 @@ export const modules: ModuleDefinition[] = [
     buildsOn: "Lessons 2–3 — attention importance and cache size",
     stage: "systems",
     workspace: "memory-lab",
-    status: "placeholder",
-    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+    status: "ready",
+    loadContent: () => import("@/content/lessons/module-08-forgetting-on-purpose.mdx"),
   },
   {
     id: "module-09",
@@ -167,8 +166,8 @@ export const modules: ModuleDefinition[] = [
     buildsOn: "Lesson 6 — cross-request cache reuse",
     stage: "consequences",
     workspace: "memory-lab",
-    status: "placeholder",
-    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+    status: "ready",
+    loadContent: () => import("@/content/lessons/module-09-when-sharing-leaks.mdx"),
   },
 ];
 

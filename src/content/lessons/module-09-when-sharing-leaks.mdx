@@ -1,0 +1,75 @@
+## Learning goal
+
+State the **efficiency vs privacy** tension of shared prefix caches, describe **timing / scheduling side channels** at a high level, and list **mitigation directions**—without an exploit playbook.
+
+## Builds on lesson 6
+
+Cross-request KV reuse is valuable. In **multi-tenant** serving, that shared state can become an **oracle**: “was this prefix already cached?”
+
+## Threat model (conceptual)
+
+| Piece           | Teaching meaning                                                                                           |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Shared pool** | Tenants A and B may hit the same physical prefix pages                                                     |
+| **Observable**  | Latency (e.g. TTFT), queue order, or other API-visible timing—not necessarily raw K/V download             |
+| **Probe**       | Attacker-controlled prompts that test whether a candidate prefix is hot                                    |
+| **Risk**        | Partial reconstruction of another user’s prompt or template in researched attacks (`S21` PROMPTPEEK-class) |
+
+This lesson teaches **why the channel exists** and **what defenders change**. It does **not** walk through operational attack steps.
+
+## Efficiency vs isolation
+
+| Mode               | Upside                              | Downside                      |
+| ------------------ | ----------------------------------- | ----------------------------- |
+| **Shared cache**   | Higher hit rate, lower cost/latency | Cross-tenant signals          |
+| **Isolated cache** | Smaller blast radius                | Duplicate storage, less reuse |
+
+Real mitigations also include rate limits, noise, monitoring, reduced cross-user matching, and careful scheduling—research is active (`S22`).
+
+## What the scene shows
+
+- **Tenant A** and **Tenant B (probe)** token streams.
+- A **shared cache pool** GPU when isolation is off; separate framing when **Cache isolation** is on.
+- Banner: educational simulation ≠ production measurement.
+
+<TryThis>
+
+- Leave isolation **off**: shared-pool metaphor + metrics still count shared prefix tokens.
+- Turn isolation **on**: shared prefix metric collapses to 0—visual “safer, less reuse.”
+- Adjust **Generation progress** on the probe stream: story-only cursor (not a real timing channel).
+
+</TryThis>
+
+## Defender checklist (non-exhaustive)
+
+1. **Isolate** by trust domain (user, org, API key).
+2. **Limit** who can share with whom (selective sharing).
+3. **Detect** abusive probing (rate / pattern).
+4. **Reduce** API-visible timing differences where feasible.
+5. **Assume** shared caches are a security boundary decision, not a free lunch.
+
+<Checkpoint>
+
+- What is a side channel here—direct data return or indirect signals?
+- Name one benefit and one risk of global prefix sharing.
+- List two mitigation _directions_ (not product configs).
+
+</Checkpoint>
+
+<Assumptions>
+
+- No real multi-tenant cluster; TTFT deltas are not measured in-browser.
+- Attack success rates from papers are lab-specific—do not treat as guaranteed on every deployment.
+- Ethics: defense-oriented framing only.
+
+</Assumptions>
+
+<Sources>
+
+- `S21` Wu et al., _I Know What You Asked_ (PROMPTPEEK), NDSS 2025.  
+  https://www.ndss-symposium.org/ndss-paper/i-know-what-you-asked-prompt-leakage-via-kv-cache-sharing-in-multi-tenant-llm-serving/
+- `S22` Selective sharing / mitigation literature (evolving).
+- Prefix mechanics: `S15` RadixAttention.
+- Glossary: multi-tenant, side channel in `docs/glossary.md`.
+
+</Sources>

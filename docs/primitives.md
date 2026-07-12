@@ -57,9 +57,9 @@ Registry: `src/components/scene/LessonScene.tsx`.
 
 All panels should use `deriveSimulationMetrics` / `selectMetrics` so compression, waste, and phase proxies mean the same thing in every lesson.
 
-## MVP lesson content (Milestone 3)
+## Lesson content status
 
-Ready path lessons with MDX, citations, and labs: **1–5 and 7**.  
-Advanced stubs remain: **6, 8, 9**.
+All V2 path lessons **1–9** are ready (Milestones 3–4) with MDX callouts:
+`Formula`, `Assumptions`, `Sources`, `TryThis`, `Checkpoint` via `src/components/mdx/`.
 
-MDX callouts: `Formula`, `Assumptions`, `Sources`, `TryThis`, `Checkpoint` via `src/components/mdx/`.
+Eviction keep-sets: `src/lib/eviction.ts` (unit tested).

@@ -1,0 +1,76 @@
+## Learning goal
+
+Explain how **shared prefixes** let a server reuse KV work across requests, and how a **radix / prefix tree** organizes that reuse.
+
+## Builds on lessons 3–5
+
+- KV stores past keys and values (lesson 3).
+- Pages make physical sharing natural (lesson 5).
+
+## The opportunity
+
+Many requests share the same **leading text**:
+
+- System prompts (“You are a helpful assistant…”)
+- Few-shot example blocks
+- Multi-turn chat history prefixes
+- Template headers in agents / RAG wrappers
+
+If two prompts share an **exact** token prefix, the engine can reuse the KV already computed for that trunk—saving **compute** (skip re-prefill of the shared part) and **memory** (one physical copy of shared pages).
+
+## RadixAttention intuition (SGLang)
+
+Instead of discarding cache when a request finishes, retain prefixes in a structure optimized for prefix search—commonly described as a **radix tree** of tokens (`S15`):
+
+- **Root → shared trunk** (common system prompt)
+- **Branches** for divergent user text
+- **Lookup** finds the longest matching prefix
+- **Insert / evict** manage what stays resident (LRU-like policies in real systems)
+
+vLLM-class stacks may use **block hashing** for automatic prefix caching (`S17`)—same family of idea, different index.
+
+## When reuse fails
+
+Reuse requires **exact** token identity (and consistent model/adapter/position handling as implemented). Divergence at token 1 means **no** shared trunk—even if English “looks similar.”
+
+## What the scene shows
+
+- A shared **prefix trunk** and page pool with **shared** plates (warmer color + “shared” labels).
+- Metrics: **shared prefix tokens** vs **unique** suffix tokens (isolation off).
+- Raise **Shared prefix tokens** to grow the shared region in the teaching layout.
+
+Lesson 9 asks what can go wrong when that sharing crosses **trust boundaries**.
+
+<TryThis>
+
+- Increase **Shared prefix tokens**: more of the page pool marks as shared.
+- Turn **Cache isolation** on (lesson 9 control): metrics treat prefix share as 0—efficiency down, risk framing changes next lesson.
+- Mentally branch two users: same system prompt, different questions → shared trunk, private leaves.
+
+</TryThis>
+
+<Checkpoint>
+
+- Name two workload patterns that create long shared prefixes.
+- Why is “almost the same prompt” not enough for KV reuse?
+- What two resources does a cache hit save?
+
+</Checkpoint>
+
+<Assumptions>
+
+- Tree geometry is schematic (not a live SGLang radix dump).
+- We do not simulate full multi-tenant scheduling priority (Longest Prefix Match details appear as security context in lesson 9).
+- Adapter / LoRA / speculative decoding edge cases omitted.
+
+</Assumptions>
+
+<Sources>
+
+- `S15` Zheng et al., SGLang / RadixAttention. https://arxiv.org/abs/2312.07104
+- `S16` LMSYS blog on RadixAttention (pedagogy). https://www.lmsys.org/blog/2024-01-17-sglang/
+- `S17` Automatic prefix caching in vLLM-class systems (system docs).
+- Glossary: prefix caching, RadixAttention in `docs/glossary.md`.
+- Bridge to security: `S21` PROMPTPEEK (lesson 9).
+
+</Sources>
