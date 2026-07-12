@@ -40,9 +40,9 @@ function stateFromFrame(frame: number): FrameState {
     writePhase = "hold";
   }
 
-  // Left: think while the first half of tokens land, then dump once, then hold
-  // so both sides share the same clock and finish the cycle together.
-  const dumpAt = Math.max(2, Math.floor(N / 2));
+  // Left: keep “thinking” until the right side lands the final token (“again”),
+  // then dump the whole paragraph at once and hold until the shared cycle ends.
+  const dumpAt = N - 1; // last write frame (token “again”)
   let wrongPhase: WrongPhase;
   let justDumped = false;
   if (f < dumpAt) {
