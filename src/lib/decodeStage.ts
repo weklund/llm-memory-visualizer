@@ -3,10 +3,7 @@
  * full pass per reply step. Schematic (not a real model).
  */
 
-import {
-  priorTokens,
-  type TimelineScenario,
-} from "@/lib/lesson1Demo";
+import { priorTokens, type TimelineScenario } from "@/lib/lesson1Demo";
 
 export type CacheMode = "naive" | "kv";
 

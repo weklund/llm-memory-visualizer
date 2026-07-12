@@ -83,8 +83,16 @@
 
 .modeActive {
   color: var(--color-text);
-  border-color: color-mix(in srgb, var(--color-compute, #fb7185) 45%, var(--color-border));
-  background: color-mix(in srgb, var(--color-compute, #fb7185) 12%, var(--color-bg-muted));
+  border-color: color-mix(
+    in srgb,
+    var(--color-compute, #fb7185) 45%,
+    var(--color-border)
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-compute, #fb7185) 12%,
+    var(--color-bg-muted)
+  );
 }
 
 .modeActiveKv {

@@ -5,11 +5,7 @@ import {
   pastLengthAt,
   type TimelineScenarioId,
 } from "@/lib/lesson1Demo";
-import {
-  bricksAt,
-  workForPass,
-  type CacheMode,
-} from "@/lib/decodeStage";
+import { bricksAt, workForPass, type CacheMode } from "@/lib/decodeStage";
 import { usePrefersReducedMotion } from "@/lib/prefersReducedMotion";
 import { budgetFor, detectDeviceClass } from "@/lib/geometryBudget";
 import { DecodeStageScene, type DecodePhase } from "./DecodeStageScene";
@@ -191,11 +187,15 @@ export function DecodeStage() {
   })();
 
   return (
-    <figure className={styles.figure} aria-label="Decode stage: full pass then next token">
+    <figure
+      className={styles.figure}
+      aria-label="Decode stage: full pass then next token"
+    >
       <figcaption className={styles.caption}>
-        <strong>Spike · Decode stage.</strong> Each step: a light sweeps the past (one full
-        model pass), a token appears, then that token becomes a new brick on the ribbon.
-        Toggle <em>naive</em> vs <em>KV cache</em> to see how much work the sweep implies.
+        <strong>Spike · Decode stage.</strong> Each step: a light sweeps the past (one
+        full model pass), a token appears, then that token becomes a new brick on the
+        ribbon. Toggle <em>naive</em> vs <em>KV cache</em> to see how much work the sweep
+        implies.
       </figcaption>
 
       <div className={styles.scenarios} role="radiogroup" aria-label="Context scenario">
@@ -261,7 +261,9 @@ export function DecodeStage() {
       </div>
 
       <div className={styles.canvasWrap}>
-        <span className={styles.canvasLabel}>3D · drag to orbit · auto-frames as the past grows</span>
+        <span className={styles.canvasLabel}>
+          3D · drag to orbit · auto-frames as the past grows
+        </span>
         <Canvas
           className={styles.canvas}
           camera={{ position: [0, 2.4, 6.2], fov: 40 }}

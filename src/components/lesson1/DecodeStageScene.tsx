@@ -88,14 +88,12 @@ function FitRibbonCamera({
     cam.lookAt(lookAt);
     cam.updateProjectionMatrix();
 
-    const controls = state.controls as
-      | {
-          target: Vector3;
-          update: () => void;
-          minDistance: number;
-          maxDistance: number;
-        }
-      | null;
+    const controls = state.controls as {
+      target: Vector3;
+      update: () => void;
+      minDistance: number;
+      maxDistance: number;
+    } | null;
 
     if (controls?.target) {
       controls.target.copy(lookAt);
@@ -141,8 +139,7 @@ export function DecodeStageScene({
         (layout.centers[layout.centers.length - 1]! - layout.centers[0]!) *
           Math.min(1, Math.max(0, sweepProgress));
 
-  const lastCenter =
-    bricks.length > 0 ? layout.centers[layout.centers.length - 1]! : 0;
+  const lastCenter = bricks.length > 0 ? layout.centers[layout.centers.length - 1]! : 0;
 
   return (
     <SceneRig gridY={-1.35} controls={false}>
@@ -162,13 +159,7 @@ export function DecodeStageScene({
             brick={brick}
             width={layout.widths[i]!}
             position={[layout.centers[i]!, 0, 0]}
-            emphasis={brickEmphasis(
-              i,
-              bricks.length,
-              sweepProgress,
-              cacheMode,
-              phase,
-            )}
+            emphasis={brickEmphasis(i, bricks.length, sweepProgress, cacheMode, phase)}
             showLabel={brick.role === "reply" || brick.tokenCount > 1}
           />
         ))}
