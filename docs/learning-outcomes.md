@@ -4,284 +4,334 @@ Defines who this site is for, what we assume, and what each module must teach.
 Use this document to catch curriculum gaps **before** writing lessons or simulations.
 
 **Last reviewed:** 2026-07-12  
-**Status:** Milestone 0 — research foundation  
-**Related issues:** #2
+**Status:** Curriculum v2 — first-principles path  
+**Related issues:** #2 (original), home-page / path reframing
+
+---
+
+## Design principle
+
+**Teach the dependency graph, not the paper title list.**
+
+Someone who only knows “an LLM predicts the next word” should be able to start at Module 1 and **earn** terms like KV cache, prefill, and PagedAttention. Paper names and system jargon appear **after** the idea they name—not as the module’s front door.
+
+Each module answers: _what can you understand now that you could not before?_  
+Each module states: _what it builds on_ from earlier lessons.
 
 ---
 
 ## Target learner profile
 
-| Attribute            | Definition                                                                                                                                                                                                                   |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Primary audience** | Engineers, researchers, and advanced students who want a **systems + first-principles** mental model of LLM **inference memory**, not a product tutorial.                                                                    |
-| **Background**       | Comfortable with Python-level ML code; has seen a Transformer block diagram; can reason about big-O and memory vs compute bottlenecks.                                                                                       |
-| **Goals**            | Explain _why_ KV cache dominates long-context serving; map techniques (paging, quant, scheduling, prefix reuse, eviction, isolation) to concrete memory/latency effects; read papers and system docs with shared vocabulary. |
-| **Non-goals**        | Training from scratch; RLHF; full CUDA kernel authoring; vendor-specific ops runbooks; jailbreak/attack how-tos.                                                                                                             |
+| Attribute                 | Definition                                                                                                                                                             |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Primary audience**      | Curious engineers, students, and practitioners who want a **first-principles → systems** path into LLM **inference memory**.                                           |
+| **Entry bar**             | High-level idea of what an LLM is (chat / next-token generation). Basic comfort with “bytes take space” and “faster vs slower.” Optional: light programming literacy.  |
+| **Not required at start** | Transformer block diagrams, attention math, GPU architecture, serving frameworks (vLLM, etc.).                                                                         |
+| **Goals**                 | Build an internal model of _why_ generation needs memory, _what_ is stored, _how big_ it gets, and _how systems_ pack, reuse, compress, drop, and isolate that memory. |
+| **Non-goals**             | Training from scratch; RLHF; full CUDA kernels; vendor ops runbooks; exploit tutorials.                                                                                |
 
 ### Personas (lightweight)
 
-1. **Inference engineer** — ships or tunes vLLM/SGLang-class stacks; needs intuition for capacity planning and feature flags.
-2. **ML researcher** — designs architectures or algorithms that change KV footprint (GQA, MLA, eviction); needs accurate cost models.
-3. **Security / platform engineer** — multi-tenant serving; needs threat models for shared prefix caches.
-4. **Curious advanced learner** — strong CS + intro DL; willing to learn GPU memory hierarchy concepts along the way.
+1. **Curious developer** — uses ChatGPT-class tools; wants to know what “context” and “memory” mean under the hood.
+2. **Engineer moving into inference** — solid CS; sparse ML theory; will later touch vLLM/SGLang.
+3. **ML practitioner** — knows training better than serving; needs the decode-time memory story.
+4. **Platform / security engineer** — joins mid-path for sharing and isolation; still benefits from Modules 1–3.
 
 ---
 
 ## Assumed prior knowledge
 
-### Required (we will _not_ re-teach from zero)
+### Required at Module 1 (true entry)
 
-| Area                      | Assumed knowledge                                                                   |
-| ------------------------- | ----------------------------------------------------------------------------------- |
-| Transformers              | Token embeddings, residual stream, multi-layer stack                                |
-| Attention                 | Queries, keys, values; scaled dot-product; causal masking at a conceptual level     |
-| Autoregressive generation | Next-token prediction; left-to-right decoding                                       |
-| Basic numerics            | FP16/BF16 exist; “lower bits → smaller memory”                                      |
-| Systems literacy          | Processes share machines; caches can be shared or isolated; latency has percentiles |
+| Area                | Assumed knowledge                                                              |
+| ------------------- | ------------------------------------------------------------------------------ |
+| LLM (product level) | Models generate text by predicting plausible next pieces of text from a prompt |
+| Conversation        | Longer chats / documents mean “more context” for the model                     |
+| Scale intuition     | Computers have limited fast memory; more data can mean more cost or latency    |
+| Numeracy            | Multiplication, “grows with length,” orders of magnitude (KB / MB / GB)        |
 
-### Soft prerequisites (brief refreshers OK in side panels)
+### Explicitly **not** required at start
 
-| Area                  | What learners may be fuzzy on                | How we handle it                      |
-| --------------------- | -------------------------------------------- | ------------------------------------- |
-| Multi-head vs GQA/MQA | Why head counts differ for Q vs K/V          | Short glossary + Module 1 diagram     |
-| GPU memory hierarchy  | HBM vs on-chip SRAM; bandwidth-bound kernels | Module 1 + GPU pipeline primitive     |
-| Batching              | Static vs continuous batching                | Module 4 first-principles sequence    |
-| Quantization math     | Scale, zero-point, per-channel               | Module 3 + glossary formulas          |
-| OS paging analogy     | Virtual vs physical pages                    | Module 2 builds the analogy carefully |
+- Multi-head attention, Q/K/V, softmax
+- Residual streams, layer norms, positional encodings (beyond “order matters”)
+- Prefill/decode, KV cache, HBM, FLOPs
+- Paging, quantization, continuous batching
 
-### Explicitly **out of scope** as prerequisites
+These are **taught in path**, not gatekept.
 
-- Deriving attention from information theory
-- Training-time optimizer / FSDP details
-- Full compiler stacks (Triton/XLA internals)
-- Legal/compliance frameworks beyond technical threat models
+### Soft skills that help (never blocking)
 
----
-
-## Global learning outcomes (whole site)
-
-By completing the core path (Modules 1–3 minimum; 4–7 for full path), a learner should be able to:
-
-1. **Compute** KV cache size from model hyperparameters and sequence/batch settings, including GQA.
-2. **Separate** _storage_ pressure (bytes in HBM) from _bandwidth_ pressure (bytes moved per decode step).
-3. **Explain** prefill vs decode phase characteristics (compute-bound vs memory-bound tendencies).
-4. **Map** each major technique class to which pressure it relieves (allocate smarter, compress, reuse, drop, isolate).
-5. **State assumptions** when quoting savings percentages from papers or benchmarks.
-6. **Reason about multi-tenant trade-offs** between cache sharing (efficiency) and leakage risk (security).
+| Area                 | How we handle gaps                                                       |
+| -------------------- | ------------------------------------------------------------------------ |
+| Big-O intuition      | Spoken in plain language (“doubling length roughly doubles this memory”) |
+| Floating-point sizes | Introduced when precision first matters (Module 3+)                      |
+| Multi-tenant servers | Introduced only when sharing appears (Module 6+)                         |
 
 ---
 
-## Learning path
+## Global learning outcomes (whole path)
+
+By finishing the path, a learner should be able to:
+
+1. **Describe** autoregressive generation as a loop (context → next token → append → repeat).
+2. **Explain** attention as “choosing what to look at in the past,” including the roles of query, key, and value **without** deriving the full paper math.
+3. **Motivate** the KV cache as “don’t recompute past keys/values every step.”
+4. **Compute** KV cache size from simple hyperparameters (including “fewer KV heads save memory”).
+5. **Separate** _storage_ (bytes sitting in GPU memory) from _bandwidth_ (bytes moved each step).
+6. **Contrast** prompt processing vs token-by-token generation and why they bottleneck differently.
+7. **Map** each technique class to a pressure it relieves: pack better, reuse, compress, drop, isolate.
+8. **State assumptions** when quoting savings from papers or blogs.
+9. **Reason** about multi-tenant trade-offs between shared prefixes (speed/cost) and leakage risk.
+
+---
+
+## Learning path (ordered)
+
+Ideas only appear **after** their dependencies.
 
 ```text
-[Prereq check]
-      │
-      ▼
- Module 1  KV growth & memory wall     ──►  shared primitives: MemoryGrid, TokenBlock
-      │
-      ▼
- Module 2  PagedAttention              ──►  pages, page tables
-      │
-      ▼
- Module 3  KV quantization             ──►  precision overlays
-      │
-      ├──────────────────────────────┐
-      ▼                              ▼
- Module 4  Prefill/decode schedule   Module 5  Prefix / Radix
-      │                              │
-      ▼                              ▼
- Module 6  Eviction / sinks          Module 7  Shared-cache security
-      │                              │
-      └──────────►  synthesis / comparison matrix (issue #22)
+  You know: "LLMs write text from a prompt"
+                    │
+                    ▼
+     ┌──────────────────────────────────┐
+     │ 1  Next word, again and again    │  autoregressive loop, tokens, context
+     └──────────────────────────────────┘
+                    │
+                    ▼
+     ┌──────────────────────────────────┐
+     │ 2  Looking back at the past      │  attention roles Q / K / V (intuition)
+     └──────────────────────────────────┘
+                    │
+                    ▼
+     ┌──────────────────────────────────┐
+     │ 3  Remembering work already done │  KV cache, size formula, memory wall
+     └──────────────────────────────────┘
+                    │
+                    ▼
+     ┌──────────────────────────────────┐
+     │ 4  Reading the prompt vs writing │  prefill vs decode, compute vs bandwidth
+     └──────────────────────────────────┘
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+ ┌─────────────────┐  ┌─────────────────┐
+ │ 5  Packing       │  │ 6  Reusing       │  pages / fragmentation   shared prefixes
+ │    memory neatly │  │    work others   │  (needs size model)     (needs cache + phases)
+ └─────────────────┘  │    already did   │
+          │           └─────────────────┘
+          │                   │
+          ▼                   ▼
+ ┌─────────────────┐  ┌─────────────────┐
+ │ 7  Using fewer   │  │ 8  Forgetting    │  quantization           eviction / sinks
+ │    bits per value│  │    on purpose    │
+ └─────────────────┘  └─────────────────┘
+                    │
+                    ▼
+     ┌──────────────────────────────────┐
+     │ 9  When sharing leaks            │  multi-tenant side channels (needs Module 6)
+     └──────────────────────────────────┘
+                    │
+                    ▼
+            comparison / synthesis
 ```
 
-**MVP path:** Modules 1–3 + citations (#13–#16).  
-**Full path:** Modules 1–7.  
-**Guided vs free exploration:** Mode switch is post-MVP (#24); outcomes below assume either path can hit the same objectives.
+| Stage              | Modules | Question the learner can answer                                  |
+| ------------------ | ------- | ---------------------------------------------------------------- |
+| **Foundations**    | 1–2     | How does generation work, and what does “looking back” mean?     |
+| **Core memory**    | 3–4     | What is stored, how large is it, when does the model pay for it? |
+| **Systems tricks** | 5–8     | How do engines pack, reuse, compress, and drop that memory?      |
+| **Consequences**   | 9       | What goes wrong when memory is shared across distrusting users?  |
+
+**Suggested MVP content build order (implementation):**  
+Foundations + core memory first (1→4), then 5, then 6, then 7–8, then 9.  
+**MVP learner path to a solid “aha”:** Modules 1–4.  
+**Full path:** 1–9.
+
+**Guided vs free exploration:** Post-MVP mode switch (#24). Default UX presents a **linear path** with clear “start here.”
 
 ---
 
 ## Per-module learning outcomes
 
-### Module 1 — KV cache growth and the memory wall
+### Module 1 — Next word, again and again
+
+**Plain title:** Next word, again and again  
+**Also known as:** Autoregressive generation, decoding loop  
+**Builds on:** Entry assumptions only  
+**Introduces:** Token, prompt, context, generate-one-then-append loop, why length grows over a conversation
 
 **Learner can:**
 
-- State the role of the KV cache in avoiding recomputation during autoregressive decode.
-- Write and use the canonical KV memory formula (with named variables) for MHA and GQA.
-- Show how memory scales with batch size \(B\), sequence length \(S\), layers \(L\), and precision.
-- Distinguish weight memory (mostly fixed at load) from activation/KV memory (grows with context and concurrency).
-- Explain why long context + large batch collides with fixed HBM capacity (“memory wall” for serving).
+- Describe generation as a loop, not a single “understand then reply” step.
+- Explain why longer prompts / longer replies mean more past text is in play.
+- Distinguish _user-visible context_ (the text) from “the model must process that text somehow” (setup for Module 2).
 
-**First-principles concepts to explain (do not hand-wave):**
-
-- Why K and V are stored per layer (and per KV head).
-- Why decode repeatedly _reads_ growing K/V (bandwidth).
-- What changes when \(H_{kv} < H_q\) (GQA/MQA).
-
-**Prerequisites used:** MHA basics, FP16 size, batch/sequence as free variables.
-
-**Assessment ideas:** Interactive calculator matching glossary formula; predict which knob doubles KV size.
+**Does not require:** Attention, transformers, GPUs.
 
 ---
 
-### Module 2 — PagedAttention and fragmentation
+### Module 2 — Looking back at the past
+
+**Plain title:** Looking back at the past  
+**Also known as:** Attention, Q/K/V intuition  
+**Builds on:** Module 1  
+**Introduces:** “For each new token, decide how much past tokens matter”; query / key / value as roles; many layers = repeated looking; causal “can’t look at the future”
 
 **Learner can:**
 
-- Describe external fragmentation and reservation waste when KV is one contiguous slab per sequence.
-- Explain logical blocks vs physical blocks and the block table (page table analogy).
-- Relate block size to internal fragmentation (last partial block).
-- Connect copy-on-write / shared blocks to prefix sharing at a high level (bridge to Module 5).
+- Explain attention as weighted looking-back, in plain language.
+- Assign roles: query ≈ “what am I looking for?”, key ≈ “what do I contain?”, value ≈ “what do I contribute if selected?”.
+- See why past tokens create work that might be reusable (setup for Module 3).
 
-**First-principles concepts:**
-
-- Virtualization of sequence positions → physical memory.
-- Why attention kernels must gather non-contiguous blocks.
-
-**Prerequisites used:** Module 1 size model; OS paging analogy as _teaching tool_ (not claiming GPU MMU identity).
-
-**Assessment ideas:** Fragmentation before/after visualization; compute worst-case internal waste for given block size.
+**Does not require:** Full scaled-dot-product derivation, multi-head algebra (heads can be a light epilogue: “several perspectives in parallel”).
 
 ---
 
-### Module 3 — KV cache quantization
+### Module 3 — Remembering work already done
+
+**Plain title:** Remembering work already done  
+**Also known as:** KV cache, memory wall  
+**Builds on:** Modules 1–2  
+**Introduces:** Storing past keys & values; the size formula; batching many conversations; precision (bytes per number); GQA as “share keys/values across heads to save memory”; GPU memory as a finite shelf (HBM intuition)
 
 **Learner can:**
 
-- Apply bit-width scaling to the Module 1 formula (e.g. FP16 → FP8 → INT4/INT2 _payload_).
-- Explain scale/zero-point and why group size matters.
-- Contrast per-token vs per-channel grouping and why K vs V may differ (KIVI-style asymmetry).
-- List quality–compression trade-offs and residual full-precision windows as a common design pattern.
-- Separate **weight** quantization from **KV** quantization (orthogonal, often combined).
+- Motivate the cache: without it, every new token redoes past K/V work.
+- Use \(M_{KV} = 2 \cdot B \cdot L \cdot H_{kv} \cdot S \cdot d_h \cdot bpe\) with named variables.
+- Predict which knob doubles memory.
+- Separate weight memory (mostly fixed) from growing cache memory.
 
-**First-principles concepts:**
-
-- Outliers and dynamic range.
-- Dequant cost vs memory traffic savings in decode.
-
-**Prerequisites used:** Module 1; soft intro to quant terms from glossary.
-
-**Assessment ideas:** Same sequence in FP16 vs 2-bit payload; identify which axis was grouped.
+**Assessment ideas:** Interactive calculator; “what if sequence doubles?”
 
 ---
 
-### Module 4 — Prefill vs decode scheduling
+### Module 4 — Reading the prompt vs writing the reply
+
+**Plain title:** Reading the prompt vs writing the reply  
+**Also known as:** Prefill vs decode; continuous batching (light)  
+**Builds on:** Module 3  
+**Introduces:** Prompt phase fills the cache; generation phase appends one (or a few) tokens per step; compute-heavy vs memory-traffic-heavy tendencies; why mixing many users needs careful scheduling
 
 **Learner can:**
 
-- Characterize prefill (many tokens, often compute-heavy) vs decode (one token/step, often memory-bound on KV).
-- Explain iteration-level (continuous) batching vs static request-level batching.
-- Describe prefill–decode interference and why disaggregation or chunked prefills help.
-- Connect scheduling choices to TTFT and inter-token latency / TPOT.
+- Name the two phases and what each does to the KV cache.
+- Connect “time to first token” vs “time between tokens” to those phases.
+- Explain why a long new prompt can stall ongoing generation (interference intuition).
 
-**First-principles concepts:**
-
-- Batch composition changing every iteration.
-- Hybrid batches (chunked prefill + decodes).
-
-**Prerequisites used:** Modules 1–2; latency metric definitions from glossary.
-
-**Assessment ideas:** Timeline scrubber: static vs continuous vs chunked-prefill schedules.
+**Depth control:** Full continuous-batching / chunked-prefill detail can deepen here or in an advanced callout; core is phase contrast.
 
 ---
 
-### Module 5 — Prefix caching and RadixAttention
+### Module 5 — Packing memory neatly
+
+**Plain title:** Packing memory neatly  
+**Also known as:** PagedAttention, fragmentation  
+**Builds on:** Modules 3–4  
+**Introduces:** Waste from huge contiguous reservations; pages/blocks; page table; internal vs external fragmentation
 
 **Learner can:**
 
-- Identify workloads with shared prefixes (system prompts, multi-turn, few-shot templates).
-- Explain automatic prefix matching and reuse of KV for the shared trunk.
-- Describe a radix-tree (or equivalent) index over token sequences for insert/lookup/evict.
-- State when reuse saves **compute** (skip prefill of shared tokens) and **memory** (shared physical blocks).
-
-**First-principles concepts:**
-
-- Exact token-prefix identity requirement for safe KV reuse.
-- Retention of cache after a request finishes (policy).
-
-**Prerequisites used:** Modules 1–2; optional bridge from Module 4 schedulers (LPM / cache-aware).
-
-**Assessment ideas:** Two requests sharing a system prompt; measure unique vs shared blocks.
+- Explain why naïve one-big-slab-per-chat wastes memory.
+- Map logical token ranges to physical pages.
+- Relate block size to leftover empty slots.
 
 ---
 
-### Module 6 — Token eviction and attention sparsity
+### Module 6 — Reusing work others already did
+
+**Plain title:** Reusing work others already did  
+**Also known as:** Prefix caching, RadixAttention  
+**Builds on:** Modules 3–5 (cache exists; pages make sharing natural)  
+**Introduces:** Shared system prompts / templates; exact prefix match; radix tree intuition; saving compute and physical memory
 
 **Learner can:**
 
-- Explain bounded-cache streaming: drop some past KV to free memory.
-- Contrast recency windows, attention-sink retention, and heavy-hitter (accumulated attention) policies.
-- State the quality risk: eviction is lossy relative to full context.
-- Relate “sparsity of attention mass” to why some tokens are kept.
-
-**First-principles concepts:**
-
-- Softmax competition and sink tokens.
-- Policy state (scores, windows) beyond raw K/V tensors.
-
-**Prerequisites used:** Modules 1 and 3; attention score intuition.
-
-**Assessment ideas:** Evict under three policies; compare kept sets for the same budget.
+- Identify workloads with repeated leading text.
+- Explain safe reuse: same tokens, same model behavior assumptions.
+- Separate “logical per-user length” from “unique physical blocks.”
 
 ---
 
-### Module 7 — Security risks in shared caches
+### Module 7 — Using fewer bits per value
+
+**Plain title:** Using fewer bits per value  
+**Also known as:** KV cache quantization  
+**Builds on:** Module 3 (size formula); optional Module 4 (decode bandwidth)  
+**Introduces:** Bit-width vs accuracy; scale / groups; why keys and values may quantize differently
 
 **Learner can:**
 
-- State the multi-tenant conflict: sharing KV/prefixes improves efficiency but creates shared state.
-- Describe **side-channel** observables (timing, scheduling priority) that can leak prefix presence—not that raw K/V is always returned to the client.
-- Outline a high-level threat model for prefix probing / prompt reconstruction research (PROMPTPEEK-class).
-- List mitigation directions: isolation domains, reduced sharing, rate limiting, noise, monitoring—without prescribing a single complete defense.
-
-**First-principles concepts:**
-
-- Cache hit ⇒ less work ⇒ observable latency/order differences.
-- Security is a first-class product of serving architecture, not an add-on slogan.
-
-**Prerequisites used:** Module 5 strongly; Module 4 helpful.
-
-**Assessment ideas:** Scenario cards: which deployments are in scope; which mitigations attack which assumption.
-
-**Ethics note for content authors:** Teach defense-oriented understanding. Do not ship step-by-step exploit playbooks.
+- Scale the size formula by payload bytes.
+- State that metadata and residual full-precision windows reduce “perfect ÷4” savings.
+- Separate weight quantization from KV quantization.
 
 ---
 
-## Concepts requiring first-principles explanation
+### Module 8 — Forgetting on purpose
 
-These should never appear as undefined jargon in the critical path:
+**Plain title:** Forgetting on purpose  
+**Also known as:** Token eviction, attention sinks, heavy hitters  
+**Builds on:** Modules 2–3 (attention mass, cache size)  
+**Introduces:** Bounded memory for very long streams; keep recent; keep early “sinks”; keep high-importance tokens; quality trade-off
 
-| Concept                           | Introduced in      | Why first-principles                  |
-| --------------------------------- | ------------------ | ------------------------------------- |
-| KV cache purpose                  | M1                 | Core object of the entire course      |
-| Bytes vs bandwidth                | M1                 | Avoid “memory” as a single fuzzy word |
-| GQA/MQA head sharing              | M1                 | Changes the formula                   |
-| Logical vs physical blocks        | M2                 | Paging analogy                        |
-| Prefill vs decode                 | M4 (preview in M1) | Scheduling depends on it              |
-| Continuous batching               | M4                 | Industry default, poorly named        |
-| Prefix identity for reuse         | M5                 | Safety of sharing                     |
-| Attention sink / heavy hitter     | M6                 | Eviction policies                     |
-| Side channel vs direct disclosure | M7                 | Correct threat model                  |
+**Learner can:**
+
+- Contrast window / sink / heavy-hitter policies.
+- State that eviction is lossy vs full history.
+- Explain “streaming forever” ≠ “remember everything perfectly.”
+
+---
+
+### Module 9 — When sharing leaks
+
+**Plain title:** When sharing leaks  
+**Also known as:** Shared-cache side channels, multi-tenant prompt leakage  
+**Builds on:** Module 6 (sharing); Module 4 helpful (latency observables)  
+**Introduces:** Timing / scheduling as signals; threat model; isolation and reduced sharing as mitigations
+
+**Learner can:**
+
+- State the efficiency vs privacy tension.
+- Describe side channels at a high level (not exploit steps).
+- List mitigation directions (isolate tenants, limit sharing, detect abuse).
+
+**Ethics:** Defense-oriented only.
+
+---
+
+## First-principles concepts (when they appear)
+
+| Concept                    | Module | Why not earlier                      |
+| -------------------------- | ------ | ------------------------------------ |
+| Token / generate loop      | 1      | Entry                                |
+| Attention as looking back  | 2      | Needs “past tokens”                  |
+| Q/K/V roles                | 2      | Needs attention story                |
+| KV cache                   | 3      | Needs K/V roles                      |
+| Size formula / memory wall | 3      | Needs cache                          |
+| Prefill vs decode          | 4      | Needs cache lifecycle                |
+| Pages / fragmentation      | 5      | Needs size + allocation pain         |
+| Prefix reuse               | 6      | Needs cache + identity of tokens     |
+| Quantization               | 7      | Needs “bytes per value”              |
+| Eviction                   | 8      | Needs attention mass + size pressure |
+| Side channels              | 9      | Needs sharing                        |
 
 ---
 
 ## Gap analysis checklist (pre-implementation)
 
-Use before freezing Module N content:
-
-- [ ] Every outcome has at least one interactive or worked example.
+- [ ] Module N titles work for someone who does not know the jargon yet.
+- [ ] Technical names appear as “also known as,” not only as the H1.
+- [ ] No outcome in Module N requires Module N+1.
+- [ ] Home page presents a **path**, not a glossary of paper titles.
 - [ ] Every formula variable is in `docs/glossary.md`.
-- [ ] Every quantitative claim cites `docs/sources.md` and states assumptions.
-- [ ] Soft prerequisites have a hover/side-panel path, not a hard stop.
-- [ ] Module N does not require Module N+1 knowledge.
-- [ ] Security module does not require running attacks.
-- [ ] Comparison matrix (#22) can be filled from module outcomes.
+- [ ] Quantitative claims cite `docs/sources.md` and list assumptions.
+- [ ] Security content has no operational exploit playbook.
 
 ---
 
 ## Changelog
 
-| Date       | Change                                                                    |
-| ---------- | ------------------------------------------------------------------------- |
-| 2026-07-12 | Initial prerequisites, global + per-module outcomes for Milestone 0 (#2). |
+| Date       | Change                                                                                                          |
+| ---------- | --------------------------------------------------------------------------------------------------------------- |
+| 2026-07-12 | Initial Milestone 0 outcomes (jargon-first 7-module path).                                                      |
+| 2026-07-12 | **v2:** First-principles path (9 modules); lowered entry bar; plain-language titles; explicit dependency order. |

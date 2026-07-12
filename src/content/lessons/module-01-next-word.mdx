@@ -1,0 +1,37 @@
+## Start here
+
+You do **not** need to know how transformers are implemented. If you know that a chat model reads your message and writes a reply, you are ready.
+
+## The loop
+
+An LLM does not compose a full answer in one mysterious step. It repeatedly asks:
+
+> Given everything so far, what is a good **next token**?
+
+A **token** is a chunk of text the model uses as a unit (a word, part of a word, or punctuation). Roughly:
+
+1. Start with your **prompt** (and any system instructions).
+2. Predict the next token.
+3. **Append** that token to the context.
+4. Go back to step 2 until the reply is done (or a limit is hit).
+
+That is **autoregressive generation**: each step conditions on the growing past.
+
+## Why this matters for “memory”
+
+Every step, the amount of past text the model must account for can **grow**:
+
+- A longer prompt → more past at step 1 of the reply.
+- A longer reply → more past by the final token.
+
+Later lessons ask: _what does the computer store so it does not redo all that work from scratch?_ First we need one more idea—**looking back** at earlier tokens (Module 2).
+
+## What you should be able to say after this lesson
+
+- Generation is a **loop**, not a single shot.
+- Context length grows with prompt + generated tokens.
+- “Memory” in product talk is related to, but not the same as, **engine memory** we will measure later.
+
+## Coming in 3D
+
+A token stream that lengthens each step—visual groundwork for the cache that appears in Module 3.

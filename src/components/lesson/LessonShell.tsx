@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useMemo, useState, type ComponentType } from "react";
 import { Link } from "react-router-dom";
 import type { ModuleDefinition } from "@/content/modules";
-import { getAdjacentModules } from "@/content/modules";
+import { getAdjacentModules, stageLabels } from "@/content/modules";
 import { ControlPanel } from "./ControlPanel";
 import { MetricPanel } from "./MetricPanel";
 import { SceneViewport } from "./SceneViewport";
@@ -14,6 +14,7 @@ type LessonShellProps = {
 export function LessonShell({ module }: LessonShellProps) {
   const { prev, next } = getAdjacentModules(module.slug);
   const [Content, setContent] = useState<ComponentType | null>(null);
+  const showLab = module.workspace === "memory-lab";
 
   const load = useMemo(() => module.loadContent, [module.loadContent]);
 
@@ -32,23 +33,52 @@ export function LessonShell({ module }: LessonShellProps) {
     <article className={styles.shell}>
       <header className={styles.header}>
         <p className={styles.kicker}>
-          Module {module.number}
-          {module.status !== "ready" ? ` · ${module.status}` : ""}
+          Lesson {module.number}
+          <span className={styles.kickerSep}>·</span>
+          {stageLabels[module.stage]}
+          {module.status !== "ready" ? (
+            <>
+              <span className={styles.kickerSep}>·</span>
+              {module.status}
+            </>
+          ) : null}
         </p>
         <h1 className={styles.title}>{module.title}</h1>
+        <p className={styles.aka}>
+          <span className={styles.akaLabel}>Also known as</span> {module.alsoKnownAs}
+        </p>
         <p className={styles.summary}>{module.summary}</p>
+        <p className={styles.buildsOn}>
+          <span className={styles.buildsLabel}>Builds on</span> {module.buildsOn}
+        </p>
       </header>
 
-      <div className={styles.workspace}>
+      <div
+        className={showLab ? styles.workspace : styles.workspaceNarrative}
+        data-workspace={module.workspace}
+      >
         <div className={styles.scene}>
           <SceneViewport />
         </div>
-        <div className={styles.controls}>
-          <ControlPanel />
-        </div>
-        <div className={styles.metrics}>
-          <MetricPanel />
-        </div>
+        {showLab ? (
+          <>
+            <div className={styles.controls}>
+              <ControlPanel />
+            </div>
+            <div className={styles.metrics}>
+              <MetricPanel />
+            </div>
+          </>
+        ) : (
+          <aside className={styles.pathAside} aria-label="Path note">
+            <h2 className={styles.pathAsideTitle}>On this path</h2>
+            <p>
+              Foundations lessons focus on the idea first. The interactive{" "}
+              <strong>memory lab</strong> (size formula, knobs, metrics) unlocks in lesson
+              3, once keys and values have a reason to be stored.
+            </p>
+          </aside>
+        )}
         <div className={styles.content}>
           {Content ? (
             <Suspense fallback={<p>Loading lesson…</p>}>
@@ -60,7 +90,7 @@ export function LessonShell({ module }: LessonShellProps) {
         </div>
       </div>
 
-      <nav className={styles.nav} aria-label="Module navigation">
+      <nav className={styles.nav} aria-label="Lesson navigation">
         {prev ? (
           <Link className={styles.navLink} to={`/modules/${prev.slug}`}>
             <span>Previous</span>

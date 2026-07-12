@@ -27,6 +27,44 @@
 .summary {
   max-width: 48rem;
   margin: 0;
+  color: var(--color-text-muted);
+}
+
+.kickerSep {
+  margin: 0 0.35rem;
+  opacity: 0.5;
+}
+
+.aka {
+  margin: 0;
+  max-width: 48rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-subtle);
+}
+
+.akaLabel {
+  display: inline;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--text-xs);
+  margin-right: var(--space-2);
+  opacity: 0.85;
+}
+
+.buildsOn {
+  margin: var(--space-1) 0 0;
+  max-width: 48rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-subtle);
+}
+
+.buildsLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: var(--space-2);
 }
 
 .workspace {
@@ -38,6 +76,43 @@
     "controls"
     "metrics"
     "content";
+}
+
+.workspaceNarrative {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "scene"
+    "aside"
+    "content";
+}
+
+.pathAside {
+  grid-area: aside;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-panel);
+  padding: var(--space-4);
+}
+
+.pathAsideTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.pathAside p {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.pathAside strong {
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .scene {
@@ -158,6 +233,14 @@
       "scene metrics"
       "content content";
     align-items: stretch;
+  }
+
+  .workspaceNarrative {
+    grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 18rem);
+    grid-template-areas:
+      "scene aside"
+      "content content";
+    align-items: start;
   }
 
   .scene {

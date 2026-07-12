@@ -1,0 +1,40 @@
+## Builds on Module 1
+
+You already know: the model emits one token at a time and the past keeps getting longer.
+
+## The problem each new token faces
+
+When the model is about to write token _t_, earlier tokens may matter a lot, a little, or almost not at all. **Attention** is the mechanism that answers:
+
+> For this new position, **how much should I look at** each past position—and **what information** should I take from it?
+
+## Three roles (intuition, not full math)
+
+Think of each past token as offering a small card with three faces:
+
+| Role      | Plain question                                  | Nickname |
+| --------- | ----------------------------------------------- | -------- |
+| **Query** | “What am I looking for right now?”              | Q        |
+| **Key**   | “What do I contain / how am I findable?”        | K        |
+| **Value** | “If you pick me, what content do I contribute?” | V        |
+
+For a new token, the model compares its **query** to past **keys** to get importance weights, then mixes past **values** accordingly.
+
+You do **not** need the matrix formula yet. You need the story: **look up (K), then read out (V).**
+
+## Layers
+
+Real models stack many layers. Each layer can “look back” again with a different specialty. For our path, remember: **work related to past tokens happens over and over** down the stack—which will multiply cost in Module 3.
+
+## Heads (light touch)
+
+Often several attentions run in parallel (“heads”)—several perspectives on the same past. Later, **sharing** keys/values across heads will appear as a memory optimization (GQA/MQA). You can ignore the acronyms until Module 3.
+
+## Bridge to Module 3
+
+If every new token needs keys and values for the past, a naïve engine recomputes them every step. Engines instead **remember** past K and V—the **KV cache**.
+
+## Sources (when you go deeper)
+
+- Attention Is All You Need (`S01` in `docs/sources.md`) — original multi-head attention
+- We stay conceptual here; equations land with the cache size story next

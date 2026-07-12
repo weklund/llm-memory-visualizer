@@ -1,0 +1,52 @@
+## Builds on Modules 1–2
+
+- Generation is a growing loop over past tokens.
+- Attention needs **keys** and **values** for positions it looks at.
+
+## The wasteful approach
+
+At every new token, recompute keys and values for **all** past tokens, then attend. Correct—but repeats a huge amount of work.
+
+## The KV cache
+
+After a token is processed, store its **key** and **value** vectors (for each layer—and each KV head). The next step **reuses** them and only computes K/V for the newest token.
+
+That stored table is the **KV cache**. It is the main “inference memory” this course is about.
+
+## Canonical size formula
+
+For batch size `B`, sequence length `S`, layers `L`, KV heads `H_kv`, head dim `d_h`, and bytes per element `bpe`:
+
+```text
+M_KV = 2 · B · L · H_kv · S · d_h · bpe
+```
+
+- **2** = keys **and** values
+- **S** grows with prompt + generated tokens
+- **B** = how many conversations you serve at once
+- **H_kv** can be smaller than the number of query heads when the model **shares** K/V (GQA/MQA)—a deliberate memory win
+
+### Worked default (glossary)
+
+32 layers · 8 KV heads · `d_h = 128` · `S = 4096` · FP16 (`bpe = 2`) · `B = 1` → **512 MiB** for the cache alone (not counting model weights).
+
+Use the **controls** and **metrics** panels to change knobs; the formula updates live.
+
+## Assumptions (always say them)
+
+- No sharing of physical cache blocks across users (that is Module 6)
+- Quantization metadata ignored (Module 7)
+- Figures from blogs like “KV is X% of GPU memory” depend on the model and load—parameterize, don’t memorize one percentage
+
+## The memory wall (serving sense)
+
+Weights are large but **mostly fixed** once the model is loaded. The KV cache **grows with context and concurrency**. Long chats × many users can exhaust GPU memory (or force tiny batches)—even when chips still have spare math units.
+
+## Sources
+
+- GQA (`S03`), MQA (`S02`), Attention (`S01`) — architecture that defines `H_kv`
+- System papers later build on this size pressure (`S05` PagedAttention, etc.)
+
+## What is next
+
+Module 4: filling this cache for a whole prompt (**prefill**) vs appending one token at a time (**decode**)—two different performance stories.

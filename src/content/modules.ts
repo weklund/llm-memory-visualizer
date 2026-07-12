@@ -1,11 +1,27 @@
 import type { ComponentType } from "react";
 
+export type ModuleStage = "foundations" | "core-memory" | "systems" | "consequences";
+
+export type ModuleWorkspace = "narrative" | "memory-lab";
+
 export type ModuleMeta = {
   id: string;
   slug: string;
   number: number;
+  /** Plain-language title (primary UI) */
   title: string;
+  /** Industry / paper jargon — shown as secondary label */
+  alsoKnownAs: string;
+  /** One sentence: what you will understand after this lesson */
   summary: string;
+  /** Short dependency note for path UI */
+  buildsOn: string;
+  stage: ModuleStage;
+  /**
+   * narrative = scene + reading (no KV formula lab yet)
+   * memory-lab = controls + metrics wired to glossary formula
+   */
+  workspace: ModuleWorkspace;
   status: "placeholder" | "draft" | "ready";
 };
 
@@ -14,73 +30,141 @@ export type ModuleDefinition = ModuleMeta & {
   loadContent: () => Promise<{ default: ComponentType }>;
 };
 
+export const stageLabels: Record<ModuleStage, string> = {
+  foundations: "Foundations",
+  "core-memory": "Core memory",
+  systems: "Systems tricks",
+  consequences: "Consequences",
+};
+
 /**
- * Canonical module registry. Order defines learning path / prev-next nav.
- * Keep in sync with docs/learning-outcomes.md and README planned modules.
+ * Canonical module registry. Array order = learning path / prev-next nav.
+ * Keep in sync with docs/learning-outcomes.md.
  */
 export const modules: ModuleDefinition[] = [
   {
     id: "module-01",
-    slug: "kv-cache-growth",
+    slug: "next-word-loop",
     number: 1,
-    title: "KV Cache Growth and the Memory Wall",
+    title: "Next word, again and again",
+    alsoKnownAs: "Autoregressive generation",
     summary:
-      "How the KV cache scales with sequence length, batch size, layers, and precision — and why HBM fills up.",
+      "How a model writes text one piece at a time—and why the amount of past text keeps growing.",
+    buildsOn: "Only a high-level idea of what an LLM is",
+    stage: "foundations",
+    workspace: "narrative",
     status: "placeholder",
-    loadContent: () => import("@/content/lessons/module-01-placeholder.mdx"),
+    loadContent: () => import("@/content/lessons/module-01-next-word.mdx"),
   },
   {
     id: "module-02",
-    slug: "paged-attention",
+    slug: "looking-back",
     number: 2,
-    title: "PagedAttention and Fragmentation",
+    title: "Looking back at the past",
+    alsoKnownAs: "Attention · queries, keys, and values",
     summary:
-      "Virtualize KV into blocks to cut reservation waste and external fragmentation.",
+      "For each new word, the model decides which earlier words matter—and what to take from them.",
+    buildsOn: "Module 1 — the generate loop",
+    stage: "foundations",
+    workspace: "narrative",
     status: "placeholder",
-    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+    loadContent: () => import("@/content/lessons/module-02-looking-back.mdx"),
   },
   {
     id: "module-03",
-    slug: "kv-quantization",
+    slug: "remembering-work",
     number: 3,
-    title: "KV Cache Quantization",
-    summary: "Lower bit-width payloads, scales, and asymmetric K/V grouping.",
+    title: "Remembering work already done",
+    alsoKnownAs: "KV cache · the memory wall",
+    summary:
+      "Why engines store past keys and values, how huge that storage gets, and when GPU memory runs out.",
+    buildsOn: "Module 2 — what keys and values are for",
+    stage: "core-memory",
+    workspace: "memory-lab",
     status: "placeholder",
-    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+    loadContent: () => import("@/content/lessons/module-03-remembering-work.mdx"),
   },
   {
     id: "module-04",
-    slug: "prefill-decode",
+    slug: "prompt-vs-generation",
     number: 4,
-    title: "Prefill vs Decode Scheduling",
-    summary: "Continuous batching, chunked prefills, and phase interference.",
+    title: "Reading the prompt vs writing the reply",
+    alsoKnownAs: "Prefill vs decode · scheduling basics",
+    summary:
+      "Processing your whole prompt is a different job from emitting the next token—and the bottlenecks differ.",
+    buildsOn: "Module 3 — a cache that grows over time",
+    stage: "core-memory",
+    workspace: "memory-lab",
     status: "placeholder",
     loadContent: () => import("@/content/lessons/module-stub.mdx"),
   },
   {
     id: "module-05",
-    slug: "prefix-caching",
+    slug: "packing-memory",
     number: 5,
-    title: "Prefix Caching and RadixAttention",
-    summary: "Reuse shared prompt prefixes across requests with a radix tree index.",
+    title: "Packing memory neatly",
+    alsoKnownAs: "PagedAttention · fragmentation",
+    summary:
+      "How breaking cache storage into pages cuts waste when many conversations share one GPU.",
+    buildsOn: "Modules 3–4 — size pressure and many concurrent chats",
+    stage: "systems",
+    workspace: "memory-lab",
     status: "placeholder",
     loadContent: () => import("@/content/lessons/module-stub.mdx"),
   },
   {
     id: "module-06",
-    slug: "token-eviction",
+    slug: "reusing-work",
     number: 6,
-    title: "Token Eviction and Attention Sparsity",
-    summary: "Bounded caches via windows, sinks, and heavy-hitter policies.",
+    title: "Reusing work others already did",
+    alsoKnownAs: "Prefix caching · RadixAttention",
+    summary:
+      "When many requests share the same opening text, the server can reuse cached work instead of redo it.",
+    buildsOn: "Modules 3–5 — cache contents and page-friendly layout",
+    stage: "systems",
+    workspace: "memory-lab",
     status: "placeholder",
     loadContent: () => import("@/content/lessons/module-stub.mdx"),
   },
   {
     id: "module-07",
-    slug: "shared-cache-security",
+    slug: "fewer-bits",
     number: 7,
-    title: "Security Risks in Shared Caches",
-    summary: "Multi-tenant prefix sharing side channels and isolation mitigations.",
+    title: "Using fewer bits per value",
+    alsoKnownAs: "KV cache quantization",
+    summary:
+      "Store each cached number with less precision to shrink memory—and what that trade-off costs.",
+    buildsOn: "Module 3 — the size formula in bytes",
+    stage: "systems",
+    workspace: "memory-lab",
+    status: "placeholder",
+    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+  },
+  {
+    id: "module-08",
+    slug: "forgetting-on-purpose",
+    number: 8,
+    title: "Forgetting on purpose",
+    alsoKnownAs: "Token eviction · attention sinks · heavy hitters",
+    summary:
+      "When history is too long to keep, which past tokens do systems drop—and what that risks.",
+    buildsOn: "Modules 2–3 — attention importance and cache size",
+    stage: "systems",
+    workspace: "memory-lab",
+    status: "placeholder",
+    loadContent: () => import("@/content/lessons/module-stub.mdx"),
+  },
+  {
+    id: "module-09",
+    slug: "when-sharing-leaks",
+    number: 9,
+    title: "When sharing leaks",
+    alsoKnownAs: "Shared-cache side channels · multi-tenant privacy",
+    summary:
+      "Shared prefixes make serving cheaper—and can create signals that leak what other users asked.",
+    buildsOn: "Module 6 — cross-request cache reuse",
+    stage: "consequences",
+    workspace: "memory-lab",
     status: "placeholder",
     loadContent: () => import("@/content/lessons/module-stub.mdx"),
   },
@@ -100,4 +184,17 @@ export function getAdjacentModules(slug: string): {
     prev: index > 0 ? (modules[index - 1] ?? null) : null,
     next: index < modules.length - 1 ? (modules[index + 1] ?? null) : null,
   };
+}
+
+export function modulesByStage(): {
+  stage: ModuleStage;
+  label: string;
+  items: ModuleDefinition[];
+}[] {
+  const order: ModuleStage[] = ["foundations", "core-memory", "systems", "consequences"];
+  return order.map((stage) => ({
+    stage,
+    label: stageLabels[stage],
+    items: modules.filter((m) => m.stage === stage),
+  }));
 }

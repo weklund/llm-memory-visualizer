@@ -1,8 +1,8 @@
 # LLM Memory Visualizer
 
-Interactive learning material for LLM memory optimization, built around 3D simulations and first-principles mental models.
+Interactive learning material for LLM inference memory, built around 3D simulations and first-principles mental models.
 
-The project teaches how KV cache memory behaves during inference and how modern systems reduce memory pressure through paging, prefix caching, scheduling, token eviction, quantization, and related security analysis.
+**You do not need to already know transformers or attention.** The path starts from “an LLM writes the next word” and earns each technical idea before naming the paper or system that uses it.
 
 ## Quick start
 
@@ -25,6 +25,23 @@ Open [http://localhost:5173](http://localhost:5173).
 
 CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (see `.github/workflows/ci.yml`).
 
+## Learning path (order matters)
+
+| #   | Plain-language lesson                   | Also known as                    |
+| --- | --------------------------------------- | -------------------------------- |
+| 1   | Next word, again and again              | Autoregressive generation        |
+| 2   | Looking back at the past                | Attention · Q/K/V                |
+| 3   | Remembering work already done           | KV cache · memory wall           |
+| 4   | Reading the prompt vs writing the reply | Prefill vs decode                |
+| 5   | Packing memory neatly                   | PagedAttention                   |
+| 6   | Reusing work others already did         | Prefix caching · RadixAttention  |
+| 7   | Using fewer bits per value              | KV quantization                  |
+| 8   | Forgetting on purpose                   | Eviction · sinks · heavy hitters |
+| 9   | When sharing leaks                      | Shared-cache side channels       |
+
+Routes: `/` (path map), `/modules/:slug` (lesson shell).  
+Curriculum detail: [`docs/learning-outcomes.md`](./docs/learning-outcomes.md).
+
 ## Stack
 
 - **Vite** + **React** + **TypeScript**
@@ -36,28 +53,12 @@ CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (
 Conventions: [`docs/conventions.md`](./docs/conventions.md)  
 Design system: [`docs/design-system.md`](./docs/design-system.md)
 
-## Planned learning modules
+## Research foundation
 
-1. KV cache growth and the memory wall
-2. PagedAttention and memory fragmentation
-3. KV cache quantization
-4. Prefill vs. decode scheduling
-5. Prefix caching and RadixAttention
-6. Token eviction and attention sparsity
-7. Security risks in shared caching systems
+| Document                                                 | Description                              |
+| -------------------------------------------------------- | ---------------------------------------- |
+| [docs/sources.md](./docs/sources.md)                     | Source inventory and paper map           |
+| [docs/learning-outcomes.md](./docs/learning-outcomes.md) | Prerequisites, path, per-lesson outcomes |
+| [docs/glossary.md](./docs/glossary.md)                   | Canonical vocabulary and KV formulas     |
 
-Routes: `/` (module index), `/modules/:slug` (lesson shell).
-
-## Research foundation (Milestone 0)
-
-| Document                                                 | Description                          |
-| -------------------------------------------------------- | ------------------------------------ |
-| [docs/sources.md](./docs/sources.md)                     | Source inventory and paper map       |
-| [docs/learning-outcomes.md](./docs/learning-outcomes.md) | Prerequisites and outcomes           |
-| [docs/glossary.md](./docs/glossary.md)                   | Canonical vocabulary and KV formulas |
-
-Simulation math in `src/lib/kvMemory.ts` must stay aligned with the glossary.
-
-## Project tracking
-
-GitHub issues and milestones: research → **scaffold** → primitives → MVP modules → advanced modules → QA → launch.
+Simulation math in `src/lib/kvMemory.ts` must stay aligned with the glossary (used from lesson 3’s memory lab onward).

@@ -5,7 +5,7 @@ This folder is the **content ground truth** for the LLM Memory Visualizer. Imple
 | Document                                       | Issue | Purpose                                                                 |
 | ---------------------------------------------- | ----- | ----------------------------------------------------------------------- |
 | [sources.md](./sources.md)                     | #1    | Source inventory, paper map, module coverage, claims needing validation |
-| [learning-outcomes.md](./learning-outcomes.md) | #2    | Learner profile, prerequisites, per-module outcomes, path gaps          |
+| [learning-outcomes.md](./learning-outcomes.md) | #2    | First-principles path (9 lessons), entry bar, dependency order          |
 | [glossary.md](./glossary.md)                   | #3    | Canonical variables, KV memory formulas, shared vocabulary              |
 
 ## Accuracy policy
@@ -26,10 +26,10 @@ This folder is the **content ground truth** for the LLM Memory Visualizer. Imple
 
 ## App scaffold (Milestone 1)
 
-| Document | Issue | Purpose |
-|----------|-------|---------|
-| [conventions.md](./conventions.md) | #4 | Stack, layout, scripts, content rules |
-| [design-system.md](./design-system.md) | #6 | Tokens, metaphors, a11y color rules |
+| Document                               | Issue | Purpose                               |
+| -------------------------------------- | ----- | ------------------------------------- |
+| [conventions.md](./conventions.md)     | #4    | Stack, layout, scripts, content rules |
+| [design-system.md](./design-system.md) | #6    | Tokens, metaphors, a11y color rules   |
 
 Runnable app: `npm install && npm run dev` (see root README).
 
