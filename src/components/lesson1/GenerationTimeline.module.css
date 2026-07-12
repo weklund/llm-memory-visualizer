@@ -83,10 +83,10 @@
 .feedNote {
   margin: calc(var(--space-2) * -1) 0 var(--space-2);
   text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.03em;
+  font-size: var(--text-lg);
+  line-height: 1;
   color: var(--color-text-subtle);
+  opacity: 0.75;
 }
 
 /* Pipeline: context → schematic model → 1 token */

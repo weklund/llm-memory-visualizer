@@ -137,7 +137,7 @@ export function GenerationTimeline() {
       </div>
 
       <p className={styles.feedNote} aria-hidden="true">
-        ↓ that same context, compressed as input to the model
+        ↓
       </p>
 
       <div
