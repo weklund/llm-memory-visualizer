@@ -246,7 +246,7 @@ export function GenerationTimeline() {
           onClick={runOnePass}
           disabled={done || phase === "running"}
         >
-          Step (full pass)
+          Step
         </button>
         <button
           type="button"
