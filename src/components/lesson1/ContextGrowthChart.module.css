@@ -10,20 +10,14 @@
   margin: 0 0 var(--space-3);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  line-height: 1.45;
 }
 
 .toggles {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: var(--space-2);
   margin-bottom: var(--space-3);
-}
-
-@media (min-width: 640px) {
-  .toggles {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
 }
 
 .toggle,
@@ -42,8 +36,7 @@
 
 .toggleActive {
   color: var(--color-text);
-  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border));
-  background: color-mix(in srgb, var(--color-accent) 15%, var(--color-bg-muted));
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg-muted));
 }
 
 .toggle input,
@@ -51,9 +44,55 @@
   accent-color: var(--color-accent);
 }
 
+.swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.callouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.callout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-muted);
+}
+
+.calloutLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
+}
+
+.calloutValue {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+
+.calloutSub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-subtle);
+}
+
 .svg {
   width: 100%;
-  max-width: 28rem;
+  max-width: 32rem;
   height: auto;
   display: block;
   margin: 0 auto var(--space-3);
@@ -63,6 +102,12 @@
   fill: var(--color-text-subtle);
   font-size: 10px;
   font-family: var(--font-mono);
+}
+
+.guideLabel {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  opacity: 0.85;
 }
 
 .insight {
