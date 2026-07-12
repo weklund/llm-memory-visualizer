@@ -110,8 +110,9 @@ export function GenerationTimeline() {
   return (
     <figure className={styles.figure} aria-label="Full model pass then next token">
       <figcaption className={styles.caption}>
-        Same fixed demo as above—but each <strong>Step</strong> shows a schematic{" "}
-        <strong>full model pass</strong>, then one new token is appended to the context.
+        Same fixed demo as above. Each <strong>Step</strong> is one{" "}
+        <strong>complete run of the full model</strong> (the bars are just a picture of
+        “the whole thing fires”), then <strong>one</strong> new token is appended.
       </figcaption>
 
       <div className={styles.contextBox} id="gen-timeline-context">
@@ -175,7 +176,7 @@ export function GenerationTimeline() {
         </div>
         <span className={styles.pipeArrow}>→</span>
         <div className={styles.net}>
-          <span className={styles.netLabel}>whole model (schematic)</span>
+          <span className={styles.netLabel}>full model run</span>
           <div className={styles.layers}>
             {Array.from({ length: LAYER_COUNT }, (_, i) => (
               <span
@@ -187,7 +188,7 @@ export function GenerationTimeline() {
               />
             ))}
           </div>
-          <span className={styles.netHint}>one forward pass</span>
+          <span className={styles.netHint}>every part fires · once · for one token</span>
         </div>
         <span className={styles.pipeArrow}>→</span>
         <div

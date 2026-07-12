@@ -25,7 +25,7 @@ Engineers describe generation as a loop:
 
 A ten-token reply is roughly **ten full model runs** in a row (plus the work to process the prompt). Each step conditions on a **growing past**. That process is called **autoregressive generation**—the name is optional; the loop of full passes is not.
 
-The interactive below reuses the same fixed sentence. Each **Step** first lights a schematic **whole-model pass** (layers are a teaching proxy—not a real architecture diagram), then appends **one** token to the growing context.
+The interactive below reuses the same fixed sentence. Each **Step** first shows a **full model run** (the stack of bars is only a picture of “the entire model fires,” not a real layer diagram), then appends **one** token to the growing context.
 
 <GenerationTimeline />
 
