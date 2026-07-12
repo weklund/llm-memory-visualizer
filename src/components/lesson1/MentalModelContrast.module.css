@@ -9,7 +9,7 @@
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 720px) {
   .grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -23,6 +23,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-height: 100%;
 }
 
 .cardRight {
@@ -39,64 +40,173 @@
   color: var(--color-text-subtle);
 }
 
-.wrong,
-.right {
-  min-height: 4.5rem;
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 8.5rem;
+}
+
+.wrongFlow {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
   flex-wrap: wrap;
-}
-
-.cloud {
-  font-size: 1.75rem;
-}
-
-.arrow {
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
   color: var(--color-text-subtle);
 }
 
-.paragraph {
+.think,
+.dumpTag {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  background: var(--color-bg-panel);
+}
+
+.dumpTag {
+  color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+}
+
+.arrow {
+  opacity: 0.7;
+}
+
+.paragraphBlock {
   margin: 0;
-  max-width: 12rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-panel);
   font-size: var(--text-sm);
+  line-height: 1.45;
   color: var(--color-text-muted);
-  line-height: 1.4;
+  min-height: 4.25rem;
+  transition:
+    opacity 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 }
 
-.line {
-  margin: 0;
+.paragraphIn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.paragraphOut {
+  opacity: 0.15;
+  transform: scale(0.98);
+}
+
+.runMeter {
   font-family: var(--font-mono);
-  font-size: var(--text-lg);
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+  min-height: 1.25rem;
+}
+
+.runMeter strong {
   color: var(--color-text);
+  font-weight: 600;
 }
 
-.cursor {
-  display: inline-block;
-  width: 0.55rem;
-  height: 1.1em;
-  margin-left: 0.15rem;
-  vertical-align: text-bottom;
-  background: var(--color-accent-strong);
-  animation: blink 1s step-end infinite;
+.tokenRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 3.25rem;
 }
 
-@keyframes blink {
-  50% {
-    opacity: 0;
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  height: 1.85rem;
+  padding: 0 0.45rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  border: 1px solid var(--color-border);
+  transition:
+    background 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    opacity 200ms var(--ease-out);
+}
+
+.chipOff {
+  background: var(--color-bg-muted);
+  color: var(--color-text-subtle);
+  opacity: 0.45;
+}
+
+.chipOn {
+  background: color-mix(in srgb, var(--color-token) 22%, var(--color-bg-panel));
+  border-color: color-mix(in srgb, var(--color-token) 50%, var(--color-border));
+  color: var(--color-text);
+  opacity: 1;
+}
+
+.chipNewest {
+  transform: scale(1.08);
+  border-color: var(--color-accent-strong);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 22%, var(--color-bg-panel));
+}
+
+.chipNext {
+  border-style: dashed;
+  border-color: var(--color-accent);
+  color: var(--color-accent-strong);
+  opacity: 0.9;
+  animation: nextPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes nextPulse {
+  0%,
+  100% {
+    opacity: 0.55;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cursor {
-    animation: none;
+  50% {
     opacity: 1;
   }
+}
+
+.nextLine {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-bandwidth);
 }
 
 .caption {
   margin: 0;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paragraphBlock,
+  .chip {
+    transition: none;
+  }
+
+  .chipNext {
+    animation: none;
+  }
+
+  .chipNewest {
+    transform: none;
+  }
+
+  .paragraphOut {
+    opacity: 1;
+    transform: none;
+  }
 }
