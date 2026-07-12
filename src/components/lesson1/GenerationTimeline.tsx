@@ -3,117 +3,205 @@ import { DEMO_PROMPT, DEMO_REPLY_TOKENS } from "@/lib/lesson1Demo";
 import { usePrefersReducedMotion } from "@/lib/prefersReducedMotion";
 import styles from "./GenerationTimeline.module.css";
 
-const PROMPT_TOKEN_COUNT = 6; // schematic “prompt length” for the past counter
+/** Schematic prompt size for “past length” (not a real tokenizer). */
+const PROMPT_TOKEN_COUNT = 6;
+const LAYER_COUNT = 5;
+/** Time for the schematic layer sweep before the token lands */
+const PASS_MS = 900;
+/** Pause after a token lands before the next autoplay pass */
+const GAP_MS = 500;
+
+type PassPhase = "idle" | "running" | "done";
 
 /**
- * V1 — primary interactive: step through one fixed autoregressive demo.
+ * V1 — step through autoregressive generation with an explicit “full model pass”
+ * beat between tokens (builds on the high-level contrast card above).
  */
 export function GenerationTimeline() {
   const total = DEMO_REPLY_TOKENS.length;
-  const [step, setStep] = useState(0); // tokens generated so far
+  const [step, setStep] = useState(0);
+  const [phase, setPhase] = useState<PassPhase>("idle");
   const [playing, setPlaying] = useState(false);
   const reduceMotion = usePrefersReducedMotion();
-  const timer = useRef<number | null>(null);
+  const passTimer = useRef<number | null>(null);
+  const playTimer = useRef<number | null>(null);
 
   const pastLength = PROMPT_TOKEN_COUNT + step;
   const done = step >= total;
   const nextToken = done ? null : DEMO_REPLY_TOKENS[step];
+  const replySoFar = DEMO_REPLY_TOKENS.slice(0, step).join(" ");
 
-  const clearTimer = () => {
-    if (timer.current != null) {
-      window.clearInterval(timer.current);
-      timer.current = null;
+  const clearPassTimer = () => {
+    if (passTimer.current != null) {
+      window.clearTimeout(passTimer.current);
+      passTimer.current = null;
     }
   };
 
-  const stepOnce = useCallback(() => {
-    setStep((s) => Math.min(total, s + 1));
-  }, [total]);
+  const clearPlayTimer = () => {
+    if (playTimer.current != null) {
+      window.clearTimeout(playTimer.current);
+      playTimer.current = null;
+    }
+  };
+
+  const clearAll = () => {
+    clearPassTimer();
+    clearPlayTimer();
+  };
+
+  const runOnePass = useCallback(() => {
+    if (step >= total || phase === "running") return;
+
+    if (reduceMotion) {
+      setStep((s) => Math.min(total, s + 1));
+      setPhase("idle");
+      return;
+    }
+
+    setPhase("running");
+    clearPassTimer();
+    passTimer.current = window.setTimeout(() => {
+      setStep((s) => Math.min(total, s + 1));
+      setPhase("idle");
+      passTimer.current = null;
+    }, PASS_MS);
+  }, [step, total, phase, reduceMotion]);
 
   const reset = () => {
-    clearTimer();
+    clearAll();
     setPlaying(false);
+    setPhase("idle");
     setStep(0);
   };
 
+  // Autoplay: after each pass settles, schedule the next
   useEffect(() => {
-    if (!playing) {
-      clearTimer();
-      return;
-    }
-    if (reduceMotion) {
-      setStep(total);
+    if (!playing || reduceMotion) return;
+    if (step >= total) {
       setPlaying(false);
       return;
     }
-    timer.current = window.setInterval(() => {
-      setStep((s) => {
-        if (s >= total) {
-          setPlaying(false);
-          return s;
-        }
-        return s + 1;
-      });
-    }, 700);
-    return clearTimer;
-  }, [playing, reduceMotion, total]);
+    if (phase === "running") return;
 
-  useEffect(() => {
-    if (done) setPlaying(false);
-  }, [done]);
+    clearPlayTimer();
+    playTimer.current = window.setTimeout(
+      () => {
+        runOnePass();
+      },
+      step === 0 && phase === "idle" ? 200 : GAP_MS,
+    );
 
-  const status = done
-    ? `Done. The whole model ran ${total} full passes. Past length is ${pastLength} tokens (prompt + full reply).`
-    : step === 0
-      ? `Ready. Past is only the prompt (${PROMPT_TOKEN_COUNT} schematic tokens). Next: one full model pass for the first token.`
-      : `Full model pass #${step} produced “${DEMO_REPLY_TOKENS[step - 1]}”. Past length = ${pastLength}. Next pass will choose “${nextToken}”.`;
+    return clearPlayTimer;
+  }, [playing, phase, step, total, reduceMotion, runOnePass]);
+
+  useEffect(() => () => clearAll(), []);
+
+  const status =
+    phase === "running" && nextToken
+      ? `Pass ${step + 1} of ${total}: whole model is running on the context so far → will emit “${nextToken}”.`
+      : done
+        ? `Done. ${total} full model passes. Past length = ${pastLength} (prompt ${PROMPT_TOKEN_COUNT} + reply ${total}).`
+        : step === 0
+          ? `Past = prompt only (${PROMPT_TOKEN_COUNT} tokens). Next Step runs the whole model once for the first reply token.`
+          : `Last pass produced “${DEMO_REPLY_TOKENS[step - 1]}”. Past length = ${pastLength}. Next Step = another full pass.`;
 
   return (
-    <figure className={styles.figure} aria-label="Autoregressive generation timeline">
+    <figure className={styles.figure} aria-label="Full model pass then next token">
       <figcaption className={styles.caption}>
-        Fixed demo — same tokens every time. One <strong>Step</strong> = one{" "}
-        <strong>full pass through the whole model</strong> = one new piece of text—not a
-        lightweight local guess.
+        Same fixed demo as above—but each <strong>Step</strong> shows a schematic{" "}
+        <strong>full model pass</strong>, then one new token is appended to the context.
       </figcaption>
 
-      <p className={styles.prompt}>
-        <span className={styles.promptLabel}>Prompt</span>
-        {DEMO_PROMPT}
-      </p>
+      <div className={styles.contextBox}>
+        <span className={styles.contextLabel}>Context the next pass sees</span>
+        <p className={styles.contextText}>
+          <span className={styles.promptText}>{DEMO_PROMPT}</span>
+          {replySoFar ? (
+            <>
+              {" "}
+              <span className={styles.replyText}>{replySoFar}</span>
+            </>
+          ) : null}
+          {phase === "running" ? (
+            <span className={styles.cursorPulse} aria-hidden="true" />
+          ) : !done ? (
+            <span className={styles.cursor} aria-hidden="true" />
+          ) : null}
+        </p>
+        <p className={styles.contextMeta}>
+          Past length: <strong>{pastLength}</strong> tokens
+          {done ? " (final)" : ` · pass ${Math.min(step + 1, total)} / ${total}`}
+        </p>
+      </div>
 
-      <div className={styles.timeline} role="list" aria-label="Token timeline">
-        <span className={styles.groupLabel} role="presentation">
-          prompt
-        </span>
-        {Array.from({ length: PROMPT_TOKEN_COUNT }, (_, i) => (
-          <span
-            key={`p-${i}`}
-            className={`${styles.token} ${styles.tokenPrompt}`}
-            role="listitem"
-          >
-            ·
+      <div
+        className={[
+          styles.pipeline,
+          phase === "running" ? styles.pipelineActive : "",
+        ].join(" ")}
+        aria-hidden="true"
+      >
+        <div className={styles.pipeIn}>
+          <span className={styles.pipeTag}>in</span>
+          <span className={styles.pipeInText}>all past text</span>
+        </div>
+        <span className={styles.pipeArrow}>→</span>
+        <div className={styles.net}>
+          <span className={styles.netLabel}>whole model (schematic)</span>
+          <div className={styles.layers}>
+            {Array.from({ length: LAYER_COUNT }, (_, i) => (
+              <span
+                key={i}
+                className={styles.layer}
+                style={{
+                  animationDelay: phase === "running" ? `${i * 0.12}s` : undefined,
+                }}
+              />
+            ))}
+          </div>
+          <span className={styles.netHint}>one forward pass</span>
+        </div>
+        <span className={styles.pipeArrow}>→</span>
+        <div
+          className={[
+            styles.pipeOut,
+            phase === "running" ? styles.pipeOutLive : "",
+            step > 0 && phase === "idle" ? styles.pipeOutSettled : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <span className={styles.pipeTag}>out</span>
+          <span className={styles.pipeOutToken}>
+            {phase === "running" && nextToken
+              ? nextToken
+              : step > 0
+                ? DEMO_REPLY_TOKENS[step - 1]
+                : "—"}
           </span>
-        ))}
-        <span className={styles.divider} aria-hidden="true" />
-        <span className={styles.groupLabel} role="presentation">
-          reply
-        </span>
+          <span className={styles.pipeOutNote}>1 token</span>
+        </div>
+      </div>
+
+      <div className={styles.tokenStrip} role="list" aria-label="Reply tokens so far">
         {DEMO_REPLY_TOKENS.map((tok, i) => {
           const written = i < step;
-          const isNext = i === step && !done;
+          const pending = i === step && phase === "running";
           return (
             <span
-              key={`r-${i}`}
+              key={`${tok}-${i}`}
               role="listitem"
               className={[
-                styles.token,
-                written ? styles.tokenWritten : styles.tokenEmpty,
-                isNext ? styles.tokenNext : "",
+                styles.chip,
+                written ? styles.chipOn : styles.chipOff,
+                pending ? styles.chipPending : "",
+                i === step - 1 && phase === "idle" ? styles.chipLatest : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
-              {written ? tok : isNext ? "?" : "·"}
+              {written ? tok : pending ? "…" : "·"}
             </span>
           );
         })}
@@ -127,16 +215,16 @@ export function GenerationTimeline() {
         <button
           type="button"
           className={styles.btnPrimary}
-          onClick={stepOnce}
-          disabled={done}
+          onClick={runOnePass}
+          disabled={done || phase === "running"}
         >
-          Step once
+          Step (full pass)
         </button>
         <button
           type="button"
           className={styles.btn}
           onClick={() => setPlaying((p) => !p)}
-          disabled={done && !playing}
+          disabled={(done && !playing) || phase === "running"}
         >
           {playing ? "Pause" : "Play"}
         </button>
@@ -146,8 +234,8 @@ export function GenerationTimeline() {
       </div>
 
       <p className={styles.practice}>
-        <strong>Try this:</strong> Reset, then Step five times. That is five full model
-        passes—what is past length after the fifth?
+        <strong>Try this:</strong> Reset, then Step five times. You should see five full
+        passes and past length = {PROMPT_TOKEN_COUNT + 5}.
       </p>
     </figure>
   );

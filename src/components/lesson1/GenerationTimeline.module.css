@@ -8,96 +8,274 @@
 }
 
 .caption {
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  line-height: 1.45;
 }
 
-.prompt {
+.contextBox {
   margin: 0 0 var(--space-4);
   padding: var(--space-3);
   border-radius: var(--radius-md);
   background: var(--color-bg-muted);
   border: 1px solid var(--color-border);
-  font-size: var(--text-base);
-  color: var(--color-text);
 }
 
-.promptLabel {
+.contextLabel {
   display: block;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-subtle);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
-.timeline {
+.contextText {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--color-text);
+  min-height: 2.75em;
+}
+
+.promptText {
+  color: var(--color-text-muted);
+}
+
+.replyText {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.cursor,
+.cursorPulse {
+  display: inline-block;
+  width: 0.45rem;
+  height: 1em;
+  margin-left: 0.15rem;
+  vertical-align: text-bottom;
+  background: var(--color-accent-strong);
+}
+
+.cursorPulse {
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.contextMeta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+.contextMeta strong {
+  color: var(--color-text);
+}
+
+/* Pipeline: context → schematic model → 1 token */
+.pipeline {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: var(--space-3);
-  min-height: 2.5rem;
+  align-items: stretch;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  background: color-mix(in srgb, var(--color-bg-muted) 80%, transparent);
 }
 
-.groupLabel {
+.pipelineActive {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--color-compute) 40%, var(--color-border));
+  background: color-mix(in srgb, var(--color-compute) 6%, var(--color-bg-panel));
+}
+
+.pipeIn,
+.pipeOut {
+  flex: 1 1 5rem;
+  min-width: 4.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-panel);
+}
+
+.pipeTag {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-subtle);
-  margin-right: 0.15rem;
 }
 
-.divider {
-  width: 1px;
+.pipeInText {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.pipeArrow {
+  align-self: center;
+  color: var(--color-text-subtle);
+  font-size: var(--text-lg);
+}
+
+.net {
+  flex: 2 1 10rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--color-compute) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-compute) 8%, var(--color-bg-panel));
+}
+
+.netLabel {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
+  text-align: center;
+}
+
+.layers {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 2.25rem;
+}
+
+.layer {
+  width: 0.85rem;
   height: 1.6rem;
-  background: var(--color-border-strong);
-  margin: 0 0.25rem;
+  border-radius: 2px;
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  opacity: 0.45;
 }
 
-.token {
+.pipelineActive .layer {
+  animation: layerFire 0.9s var(--ease-out) both;
+}
+
+@keyframes layerFire {
+  0% {
+    opacity: 0.35;
+    background: var(--color-bg-muted);
+    transform: scaleY(0.85);
+  }
+  35% {
+    opacity: 1;
+    background: color-mix(in srgb, var(--color-compute) 65%, var(--color-key));
+    border-color: var(--color-compute);
+    transform: scaleY(1.1);
+  }
+  100% {
+    opacity: 0.7;
+    background: color-mix(in srgb, var(--color-compute) 35%, var(--color-bg-muted));
+    transform: scaleY(1);
+  }
+}
+
+.netHint {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-align: center;
+  color: var(--color-compute);
+}
+
+.pipeOutToken {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-subtle);
+  min-height: 1.35em;
+}
+
+.pipeOutLive .pipeOutToken {
+  color: var(--color-accent-strong);
+}
+
+.pipeOutSettled .pipeOutToken {
+  color: var(--color-token);
+}
+
+.pipeOutNote {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-subtle);
+}
+
+.tokenStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: var(--space-3);
+  min-height: 2rem;
+}
+
+.chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 2rem;
-  height: 2rem;
+  height: 1.85rem;
   padding: 0 0.4rem;
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   border: 1px solid var(--color-border);
   transition:
-    background var(--duration-normal) var(--ease-out),
-    border-color var(--duration-normal) var(--ease-out),
-    color var(--duration-normal) var(--ease-out);
+    background 280ms var(--ease-out),
+    border-color 280ms var(--ease-out),
+    color 280ms var(--ease-out);
 }
 
-.tokenPrompt {
-  background: color-mix(in srgb, var(--color-key) 18%, var(--color-bg-muted));
-  border-color: color-mix(in srgb, var(--color-key) 40%, var(--color-border));
-  color: var(--color-key);
-}
-
-.tokenEmpty {
+.chipOff {
   background: var(--color-bg-muted);
   color: var(--color-text-subtle);
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
-.tokenWritten {
+.chipOn {
   background: color-mix(in srgb, var(--color-token) 22%, var(--color-bg-muted));
   border-color: color-mix(in srgb, var(--color-token) 45%, var(--color-border));
   color: var(--color-text);
+  opacity: 1;
 }
 
-.tokenNext {
-  border-color: var(--color-accent-strong);
-  color: var(--color-accent-strong);
+.chipPending {
+  border-style: dashed;
+  border-color: var(--color-compute);
+  color: var(--color-compute);
   opacity: 1;
+  animation: pendingPulse 0.8s ease-in-out infinite;
+}
+
+.chipLatest {
+  border-color: var(--color-accent-strong);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+@keyframes pendingPulse {
+  50% {
+    opacity: 0.55;
+  }
 }
 
 .status {
@@ -152,4 +330,12 @@
 
 .practice strong {
   color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursorPulse,
+  .pipelineActive .layer,
+  .chipPending {
+    animation: none;
+  }
 }
