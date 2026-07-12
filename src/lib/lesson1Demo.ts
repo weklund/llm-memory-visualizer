@@ -5,7 +5,10 @@
 /** Default short prompt (also used by the contrast card). */
 export const DEMO_PROMPT = "Write a haiku about rain.";
 
-/** Schematic “tokens” for the demo reply (fixed path for re-watching). */
+/**
+ * Haiku-style reply — used by the contrast card and the “longer reply” scenario
+ * (matches the short “Write a haiku about rain.” prompt).
+ */
 export const DEMO_REPLY_TOKENS = [
   "Soft",
   "rain",
@@ -17,6 +20,32 @@ export const DEMO_REPLY_TOKENS = [
   "night",
   "breathes",
   "again",
+] as const;
+
+/** Reply for the long system/doc “summarize as a haiku…” prompt (shorter answer). */
+export const DEMO_REPLY_LONG_PROMPT = [
+  "Night",
+  "rain",
+  "on",
+  "empty",
+  "streets",
+  "—",
+  "mood",
+  "softens",
+] as const;
+
+/** Reply for multi-turn packing follow-up (“rain shell?”). */
+export const DEMO_REPLY_MULTI_TURN = [
+  "Yes",
+  "—",
+  "forecast",
+  "looks",
+  "wet",
+  ",",
+  "so",
+  "pack",
+  "the",
+  "shell",
 ] as const;
 
 /** Prior chat turns for multi-turn scenario (token counts are schematic). */
@@ -60,7 +89,7 @@ export const TIMELINE_SCENARIOS: TimelineScenario[] = [
     promptDisplay:
       "System: be concise. Attached notes (weather, mood, city sounds). Task: summarize in one short image—a haiku about rain on quiet streets at night.",
     priorTurns: [],
-    replyTokens: DEMO_REPLY_TOKENS,
+    replyTokens: DEMO_REPLY_LONG_PROMPT,
   },
   {
     id: "growing-reply",
@@ -75,11 +104,10 @@ export const TIMELINE_SCENARIOS: TimelineScenario[] = [
     id: "multi-turn",
     label: "Multi-turn chat",
     blurb: "Earlier turns stay in context while the new reply grows.",
-    // Slightly longer current user turn so it reads as a follow-up, not a fresh haiku ask
     promptTokens: 9,
     promptDisplay: "Should I also pack a rain shell?",
     priorTurns: DEMO_PRIOR_TURNS,
-    replyTokens: DEMO_REPLY_TOKENS,
+    replyTokens: DEMO_REPLY_MULTI_TURN,
   },
 ];
 

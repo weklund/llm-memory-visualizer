@@ -29,10 +29,15 @@ describe("lesson1Demo", () => {
     }
   });
 
-  it("timeline scenarios share the same reply path", () => {
-    for (const s of TIMELINE_SCENARIOS) {
-      expect([...s.replyTokens]).toEqual([...DEMO_REPLY_TOKENS]);
-    }
+  it("timeline scenarios use distinct reply paths that match their prompts", () => {
+    const paths = TIMELINE_SCENARIOS.map((s) => s.replyTokens.join(" "));
+    expect(new Set(paths).size).toBe(TIMELINE_SCENARIOS.length);
+    const longP = TIMELINE_SCENARIOS.find((s) => s.id === "long-prompt")!;
+    const grow = TIMELINE_SCENARIOS.find((s) => s.id === "growing-reply")!;
+    const multi = TIMELINE_SCENARIOS.find((s) => s.id === "multi-turn")!;
+    expect(grow.replyTokens.join(" ")).toContain("Soft rain");
+    expect(longP.replyTokens.join(" ")).toMatch(/Night rain/i);
+    expect(multi.replyTokens.join(" ")).toMatch(/shell/i);
   });
 
   it("long prompt starts taller than growing-reply", () => {
