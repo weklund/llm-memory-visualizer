@@ -3,10 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Interactive 3D learning site for LLM memory optimization",
+  "description": "Interactive 3D learning site for LLM inference memory (KV cache, paging, quant, security)",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:pages": "BASE_PATH=/llm-memory-visualizer/ tsc --noEmit && BASE_PATH=/llm-memory-visualizer/ vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",

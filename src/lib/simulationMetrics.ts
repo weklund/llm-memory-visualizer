@@ -9,6 +9,7 @@ import {
   logicalBlocksForSequence,
   type KvMemoryParams,
 } from "./kvMemory";
+import { budgetFor, detectDeviceClass } from "./geometryBudget";
 import { buildPagedLayout, physicalBytes } from "./paging";
 
 export type Phase = "prefill" | "decode" | "mixed";
@@ -145,16 +146,18 @@ export function deriveSimulationMetrics(config: SimulationConfig): SimulationMet
 }
 
 /** Map full sequence length to a display count with log-ish growth (perf cap). */
-export function displayTokens(sequenceLength: number, cap = 24): number {
+export function displayTokens(sequenceLength: number, cap?: number): number {
+  const resolved = cap ?? budgetFor(detectDeviceClass()).tokens;
   if (sequenceLength <= 0) return 1;
-  if (sequenceLength <= cap) return sequenceLength;
+  if (sequenceLength <= resolved) return sequenceLength;
   const t = Math.log2(1 + sequenceLength) / Math.log2(1 + 8192);
-  return Math.max(8, Math.min(cap, Math.round(cap * t)));
+  return Math.max(Math.min(8, resolved), Math.min(resolved, Math.round(resolved * t)));
 }
 
-export function displayLayers(layers: number, cap = 8): number {
+export function displayLayers(layers: number, cap?: number): number {
+  const resolved = cap ?? budgetFor(detectDeviceClass()).layers;
   if (layers <= 0) return 1;
-  if (layers <= cap) return layers;
+  if (layers <= resolved) return layers;
   const t = Math.log2(1 + layers) / Math.log2(1 + 80);
-  return Math.max(2, Math.min(cap, Math.round(cap * t)));
+  return Math.max(Math.min(2, resolved), Math.min(resolved, Math.round(resolved * t)));
 }

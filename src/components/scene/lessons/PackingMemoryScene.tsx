@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Text } from "@react-three/drei";
 import { PageTable, SceneRig } from "@/components/primitives";
+import { budgetFor, detectDeviceClass } from "@/lib/geometryBudget";
 import { simColors } from "@/lib/simColors";
 import { buildContiguousLayout, buildPagedLayout } from "@/lib/paging";
 import { useSimulationStore } from "@/state/simulationStore";
@@ -9,16 +10,17 @@ import { CachePage } from "@/components/primitives/CachePage";
 /** Lesson 5 — naive contiguous slab vs paged pool with holes. */
 export function PackingMemoryScene() {
   const params = useSimulationStore((s) => s.params);
+  const pageCap = budgetFor(detectDeviceClass()).pages * params.blockSize;
 
   const displayS = useMemo(() => {
     return Math.min(
-      96,
+      pageCap,
       Math.max(
         params.blockSize,
         Math.round(params.sequenceLength / 64) * params.blockSize,
       ),
     );
-  }, [params.sequenceLength, params.blockSize]);
+  }, [params.sequenceLength, params.blockSize, pageCap]);
 
   const paged = useMemo(
     () => buildPagedLayout(displayS, params.blockSize, { holeEvery: 3 }),

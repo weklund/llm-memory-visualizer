@@ -4,9 +4,12 @@ import { HomePage } from "@/pages/HomePage";
 import { ModulePage } from "@/pages/ModulePage";
 import { ReferencesPage } from "@/pages/ReferencesPage";
 
+/** Strip trailing slash from Vite BASE_URL for React Router basename */
+const rawBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter {...(rawBase ? { basename: rawBase } : {})}>
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={<HomePage />} />

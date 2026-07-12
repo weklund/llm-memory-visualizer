@@ -49,6 +49,12 @@ Runnable app: `npm install && npm run dev` (see root README).
 
 In-app: `/references` (paper index + comparison matrix).
 
-## Next milestones
+## Polish & launch (Milestone 6)
 
-See GitHub milestone 6 (guided mode, performance, deploy).
+| Document                           | Issue | Purpose                                                    |
+| ---------------------------------- | ----- | ---------------------------------------------------------- |
+| [performance.md](./performance.md) | #25   | Geometry budgets, mobile DPR, instancing notes             |
+| Guided steps                       | #24   | `src/content/guidedSteps.ts` + Mode toggle in lesson shell |
+| Deploy                             | #26   | `.github/workflows/deploy.yml` → GitHub Pages              |
+
+Public site (after Pages enabled): `https://weklund.github.io/llm-memory-visualizer/`

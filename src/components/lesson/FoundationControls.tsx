@@ -1,7 +1,7 @@
 import { useSimulationStore } from "@/state/simulationStore";
 import styles from "./ControlPanel.module.css";
 
-/** Lightweight knobs for lessons 1–2 (no full memory lab). */
+/** Lightweight knobs for lessons 1–2 (no full memory lab). Free-explore only. */
 export function FoundationControls() {
   const progress = useSimulationStore((s) => s.params.generateProgress);
   const sequenceLength = useSimulationStore((s) => s.params.sequenceLength);
@@ -10,7 +10,7 @@ export function FoundationControls() {
   return (
     <section className={styles.panel} aria-labelledby="foundation-controls">
       <div className={styles.heading}>
-        <h2 id="foundation-controls">Explore</h2>
+        <h2 id="foundation-controls">Explore freely</h2>
       </div>
       <div className={styles.field}>
         <label htmlFor="generateProgress">

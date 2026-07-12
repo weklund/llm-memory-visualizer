@@ -4,6 +4,9 @@ Interactive learning material for LLM inference memory, built around 3D simulati
 
 **You do not need to already know transformers or attention.** The path starts from “an LLM writes the next word” and earns each technical idea before naming the paper or system that uses it.
 
+**Live site:** [https://weklund.github.io/llm-memory-visualizer/](https://weklund.github.io/llm-memory-visualizer/)  
+(Deployed from `main` via GitHub Pages.)
+
 ## Quick start
 
 ```bash
@@ -23,7 +26,8 @@ Open [http://localhost:5173](http://localhost:5173).
 | `npm run format`    | Prettier                       |
 | `npm run typecheck` | `tsc --noEmit`                 |
 
-CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (see `.github/workflows/ci.yml`).
+CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (see `.github/workflows/ci.yml`).  
+Deploy runs on push to `main` (see `.github/workflows/deploy.yml`).
 
 ## Learning path (order matters)
 
@@ -39,20 +43,26 @@ CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (
 | 8   | Forgetting on purpose                   | Eviction · sinks · heavy hitters |
 | 9   | When sharing leaks                      | Shared-cache side channels       |
 
-Routes: `/` (path map), `/modules/:slug` (lesson shell), `/references` (paper index + technique matrix).  
-Curriculum detail: [`docs/learning-outcomes.md`](./docs/learning-outcomes.md).  
-Accuracy QA: [`docs/accuracy-checklist.md`](./docs/accuracy-checklist.md).
+Routes: `/` (path map), `/modules/:slug` (lesson shell), `/references` (paper index + technique matrix).
+
+**Modes:** each lesson supports **Guided** (step tour) and **Free explore** (full sliders). Choice is saved in the browser.
+
+Curriculum: [`docs/learning-outcomes.md`](./docs/learning-outcomes.md).  
+Accuracy QA: [`docs/accuracy-checklist.md`](./docs/accuracy-checklist.md).  
+Performance: [`docs/performance.md`](./docs/performance.md).
 
 ## Stack
 
 - **Vite** + **React** + **TypeScript**
 - **React Three Fiber** + **Drei** + **Three.js**
 - **MDX** lessons
-- **Zustand** simulation state
+- **Zustand** simulation + exploration state
 - **Vitest** + **ESLint** + **Prettier**
 
 Conventions: [`docs/conventions.md`](./docs/conventions.md)  
-Design system: [`docs/design-system.md`](./docs/design-system.md)
+Design system: [`docs/design-system.md`](./docs/design-system.md)  
+Contributing: [`CONTRIBUTING.md`](./CONTRIBUTING.md)  
+License: [MIT](./LICENSE)
 
 ## Research foundation
 

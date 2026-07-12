@@ -115,6 +115,16 @@
   font-weight: 600;
 }
 
+.guidedOnlyNote {
+  margin: 0;
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+}
+
 .scene {
   grid-area: scene;
   min-height: var(--scene-min-height);
@@ -222,6 +232,13 @@
 
 .navPlaceholder {
   visibility: hidden;
+}
+
+@media (max-width: 639px) {
+  .scene {
+    height: min(42vh, 18rem);
+    min-height: 14rem;
+  }
 }
 
 @media (min-width: 960px) {

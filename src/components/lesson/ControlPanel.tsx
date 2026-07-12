@@ -1,5 +1,7 @@
 import { modelPresets, type ModelPresetId } from "@/lib/modelPresets";
+import { collectParamWarnings } from "@/lib/paramGuards";
 import type { EvictionPolicy } from "@/lib/eviction";
+import { useExplorationStore } from "@/state/explorationStore";
 import { useSimulationStore, type SimulationParams } from "@/state/simulationStore";
 import styles from "./ControlPanel.module.css";
 
@@ -60,15 +62,29 @@ export function ControlPanel() {
   const setParam = useSimulationStore((s) => s.setParam);
   const applyPreset = useSimulationStore((s) => s.applyPreset);
   const reset = useSimulationStore((s) => s.reset);
+  const mode = useExplorationStore((s) => s.mode);
+  const free = mode === "free";
+  const warnings = free ? collectParamWarnings(params) : [];
 
   return (
     <section className={styles.panel} aria-labelledby="controls-heading">
       <div className={styles.heading}>
-        <h2 id="controls-heading">Controls</h2>
-        <button type="button" className={styles.reset} onClick={reset}>
-          Reset
-        </button>
+        <h2 id="controls-heading">
+          {free ? "Controls" : "Controls (read-only in guided)"}
+        </h2>
+        {free ? (
+          <button type="button" className={styles.reset} onClick={reset}>
+            Reset
+          </button>
+        ) : null}
       </div>
+
+      {!free ? (
+        <p className={styles.hint}>
+          Guided mode drives these values from tour steps. Switch to{" "}
+          <strong>Free explore</strong> for full sliders.
+        </p>
+      ) : null}
 
       <div className={styles.field}>
         <label htmlFor="preset">
@@ -78,6 +94,7 @@ export function ControlPanel() {
         <select
           id="preset"
           value={params.presetId}
+          disabled={!free}
           onChange={(e) => applyPreset(e.target.value as ModelPresetId)}
           className={styles.select}
         >
@@ -97,6 +114,7 @@ export function ControlPanel() {
         <select
           id="phase"
           value={params.phase}
+          disabled={!free}
           onChange={(e) => setParam("phase", e.target.value as SimulationParams["phase"])}
           className={styles.select}
         >
@@ -114,6 +132,7 @@ export function ControlPanel() {
         <select
           id="evictionPolicy"
           value={params.evictionPolicy}
+          disabled={!free}
           onChange={(e) => setParam("evictionPolicy", e.target.value as EvictionPolicy)}
           className={styles.select}
         >
@@ -133,6 +152,7 @@ export function ControlPanel() {
         <select
           id="cacheIsolation"
           value={params.cacheIsolation ? "on" : "off"}
+          disabled={!free}
           onChange={(e) => setParam("cacheIsolation", e.target.value === "on")}
           className={styles.select}
         >
@@ -157,11 +177,21 @@ export function ControlPanel() {
               max={spec.max}
               step={spec.step}
               value={value}
+              disabled={!free}
               onChange={(e) => setParam(spec.key, Number(e.target.value))}
             />
           </div>
         );
       })}
+
+      {warnings.length > 0 ? (
+        <ul className={styles.warnings} aria-label="Parameter notes">
+          {warnings.map((w) => (
+            <li key={w.id}>{w.message}</li>
+          ))}
+        </ul>
+      ) : null}
+
       <p className={styles.hint}>
         Metrics follow <code>docs/glossary.md</code>. Sharing / quant / eviction are
         teaching models, not production counters.

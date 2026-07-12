@@ -2,11 +2,15 @@ import { Suspense, useEffect, useMemo, useState, type ComponentType } from "reac
 import { Link } from "react-router-dom";
 import type { ModuleDefinition } from "@/content/modules";
 import { getAdjacentModules, stageLabels } from "@/content/modules";
+import { getGuidedSteps } from "@/content/guidedSteps";
 import { mdxComponents } from "@/components/mdx/mdxComponents";
 import { ControlPanel } from "./ControlPanel";
 import { FoundationControls } from "./FoundationControls";
+import { GuidedPanel } from "./GuidedPanel";
 import { MetricPanel } from "./MetricPanel";
+import { ModeToggle } from "./ModeToggle";
 import { SceneViewport } from "./SceneViewport";
+import { useExplorationStore } from "@/state/explorationStore";
 import styles from "./LessonShell.module.css";
 
 type LessonShellProps = {
@@ -22,6 +26,9 @@ export function LessonShell({ module }: LessonShellProps) {
   const [Content, setContent] = useState<ComponentType<MdxContentProps> | null>(null);
   const showLab = module.workspace === "memory-lab";
   const showFoundation = module.workspace === "narrative";
+  const guidedSteps = getGuidedSteps(module.slug);
+  const hasGuided = guidedSteps.length > 0;
+  const mode = useExplorationStore((s) => s.mode);
 
   const load = useMemo(() => module.loadContent, [module.loadContent]);
 
@@ -58,11 +65,13 @@ export function LessonShell({ module }: LessonShellProps) {
         <p className={styles.buildsOn}>
           <span className={styles.buildsLabel}>Builds on</span> {module.buildsOn}
         </p>
+        {hasGuided ? <ModeToggle hasGuidedSteps={hasGuided} /> : null}
       </header>
 
       <div
         className={showLab ? styles.workspace : styles.workspaceNarrative}
         data-workspace={module.workspace}
+        data-mode={mode}
       >
         <div className={styles.scene}>
           <SceneViewport slug={module.slug} />
@@ -70,6 +79,7 @@ export function LessonShell({ module }: LessonShellProps) {
         {showLab ? (
           <>
             <div className={styles.controls}>
+              <GuidedPanel slug={module.slug} />
               <ControlPanel />
             </div>
             <div className={styles.metrics}>
@@ -78,7 +88,15 @@ export function LessonShell({ module }: LessonShellProps) {
           </>
         ) : showFoundation ? (
           <div className={styles.controls}>
-            <FoundationControls />
+            <GuidedPanel slug={module.slug} />
+            {mode === "free" ? (
+              <FoundationControls />
+            ) : (
+              <p className={styles.guidedOnlyNote}>
+                Guided mode is driving the scene. Use step controls above, or switch to
+                Free explore for manual knobs.
+              </p>
+            )}
           </div>
         ) : (
           <aside className={styles.pathAside} aria-label="Path note">

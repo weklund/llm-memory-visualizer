@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { Text } from "@react-three/drei";
-import { TokenBlock } from "./TokenBlock";
+import * as THREE from "three";
 import { simColors } from "@/lib/simColors";
 
 export type MemoryGridProps = {
@@ -19,9 +19,12 @@ export type MemoryGridProps = {
   showAxes?: boolean;
 };
 
+const _obj = new THREE.Object3D();
+const _color = new THREE.Color();
+
 /**
  * Bounded 3D grid of K/V-ish cells for cache growth (lesson 3+).
- * Alternating key/value roles along X for non-color-only distinction via checkerboard + labels.
+ * Uses one InstancedMesh for draw-call efficiency (#25).
  */
 export function MemoryGrid({
   tokens,
@@ -33,11 +36,12 @@ export function MemoryGrid({
   oom = false,
   showAxes = true,
 }: MemoryGridProps) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
   const filledCols = Math.max(1, Math.round(tokens * Math.min(1, Math.max(0.05, fill))));
+  const count = Math.max(1, tokens * layers * batch);
 
-  const cells = useMemo(() => {
+  const layout = useMemo(() => {
     const list: {
-      key: string;
       pos: [number, number, number];
       role: "key" | "value";
       active: boolean;
@@ -45,16 +49,14 @@ export function MemoryGrid({
     for (let l = 0; l < layers; l++) {
       for (let b = 0; b < batch; b++) {
         for (let t = 0; t < tokens; t++) {
-          const active = t < filledCols;
           list.push({
-            key: `${l}-${b}-${t}`,
             pos: [
               (t - (tokens - 1) / 2) * gap,
               l * gap * 0.9,
               (b - (batch - 1) / 2) * gap * 1.1,
             ],
             role: t % 2 === 0 ? "key" : "value",
-            active,
+            active: t < filledCols,
           });
         }
       }
@@ -62,18 +64,40 @@ export function MemoryGrid({
     return list;
   }, [tokens, layers, batch, gap, filledCols]);
 
+  useLayoutEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const size = 0.24;
+    layout.forEach((c, i) => {
+      _obj.position.set(c.pos[0], c.pos[1], c.pos[2]);
+      _obj.scale.setScalar(size);
+      _obj.updateMatrix();
+      mesh.setMatrixAt(i, _obj.matrix);
+      if (c.active) {
+        _color.set(c.role === "key" ? simColors.key : simColors.value);
+        if (oom) _color.lerp(new THREE.Color(simColors.waste), 0.35);
+      } else {
+        _color.set("#334155");
+      }
+      mesh.setColorAt(i, _color);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.count = layout.length;
+  }, [layout, oom]);
+
   return (
     <group position={position}>
-      {cells.map((c) => (
-        <TokenBlock
-          key={c.key}
-          position={c.pos}
-          role={c.active ? c.role : "mixed"}
-          emphasis={c.active ? (oom ? 0.9 : 0.4) : 0.05}
-          opacity={c.active ? (oom ? 0.95 : 1) : 0.12}
-          size={0.24}
+      <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          toneMapped
+          metalness={0.15}
+          roughness={0.42}
+          transparent
+          opacity={oom ? 0.92 : 1}
         />
-      ))}
+      </instancedMesh>
       {oom ? (
         <Text
           position={[0, layers * gap * 0.9 + 0.5, 0]}

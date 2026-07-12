@@ -147,7 +147,7 @@ Foundations + core memory first (1→4), then 5, then 6, then 7–8, then 9.
 **MVP learner path to a solid “aha”:** Modules 1–4.  
 **Full path:** 1–9.
 
-**Guided vs free exploration:** Post-MVP mode switch (#24). Default UX presents a **linear path** with clear “start here.”
+**Guided vs free exploration:** Lesson shell mode switch (#24). Default is **Guided** (step tours in `guidedSteps.ts`); **Free explore** exposes full sliders. Choice persists in `localStorage`.
 
 ---
 

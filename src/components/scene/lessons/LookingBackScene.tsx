@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 import { AttentionSurface, SceneRig, TokenStream } from "@/components/primitives";
 import { buildDemoAttentionMatrix, downsampleAttention } from "@/lib/attentionDemo";
+import { budgetFor, detectDeviceClass } from "@/lib/geometryBudget";
 import { usePrefersReducedMotion } from "@/lib/prefersReducedMotion";
 import { useSimulationStore } from "@/state/simulationStore";
 
@@ -14,6 +15,7 @@ export function LookingBackScene() {
 
   const matrix = useMemo(() => {
     const n = 10;
+    const { attention } = budgetFor(detectDeviceClass());
     return downsampleAttention(
       buildDemoAttentionMatrix({
         rows: n,
@@ -22,7 +24,7 @@ export function LookingBackScene() {
         heavyHitterCount: 2,
         causal: true,
       }),
-      12,
+      attention,
     );
   }, []);
 
