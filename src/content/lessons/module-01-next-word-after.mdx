@@ -1,0 +1,64 @@
+## Idea 3 — Why “how much past text is in play” keeps growing
+
+Three everyday situations all lengthen the past the next step must consider:
+
+| What you do                         | What grows for the next token                                        |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| You send a **longer prompt**        | More tokens exist before the first output token                      |
+| The model writes a **longer reply** | Each new token joins the past for the step after it                  |
+| You continue a **multi-turn chat**  | Earlier turns usually stay in context (unless the product truncates) |
+
+Nothing mystical is happening. The loop always asks “what next, given so far?”—and “so far” is simply longer.
+
+That is why inference systems care so much about **sequence length**. Even before we talk about GPU memory, you can see the product-level fact: longer conversations mean more past text is “in play” for every new word.
+
+## Idea 4 — Two different meanings of “memory”
+
+People use “memory” for two different things. Keep them separate from day one:
+
+1. **Product language** — “The model remembers our conversation.” That usually means: the **text** of earlier turns is still in the **context** the product sends to the model.
+2. **Engine language** — Structures a serving system stores on the GPU so it does not **recompute** work for every past token (this course’s later focus: the **KV cache**, starting in lesson 3).
+
+This lesson only needs (1): the **visible, growing text timeline**.
+
+Lesson 2 asks _how_ the model **looks back** along that timeline when choosing the next token.  
+Lesson 3 asks _what_ the engine **stores** so looking back is affordable.
+
+## What to take with you
+
+If you remember only three sentences from lesson 1:
+
+1. Generation is a **loop**: next token → append → repeat.
+2. Each step conditions on a **longer past** than the step before.
+3. “Context” here means **text in play**—not yet GPU caches or attention math.
+
+When those feel obvious, you are ready for lesson 2.
+
+<Checkpoint>
+
+- Can you explain generation as a loop rather than a single “write the whole answer” step?
+- If a reply doubles in length, what roughly doubles for the **next** token decision?
+- In one sentence, how is “the chat remembers what I said” different from “the GPU stores a cache”?
+
+</Checkpoint>
+
+## Optional next
+
+Under the scene you can open **Explore the scene** if you want to scrub the timeline yourself. That is optional. The looping animation is the main teaching device for this lesson.
+
+<Assumptions>
+
+- We ignore tokenizer details (BPE merges, special tokens).
+- We ignore sampling (temperature, top-p)—those pick _which_ next token, not the loop shape.
+- The 3D stream is **display-sized** and schematic; real contexts can be thousands of tokens.
+- Restarting the loop is for teaching; a real reply does not wipe and regenerate unless you ask again.
+
+</Assumptions>
+
+<Sources>
+
+- Standard decoder-only LM framing: next-token prediction under a growing context.
+- `S01` Attention Is All You Need is the modern attention backbone—**not** required reading for this lesson; it becomes relevant in lesson 2.
+- Path outcomes: `docs/learning-outcomes.md` (Module 1).
+
+</Sources>

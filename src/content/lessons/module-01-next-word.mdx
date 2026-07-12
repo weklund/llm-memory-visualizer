@@ -1,70 +1,40 @@
-## Learning goal
+## Where we start
 
-Explain how an LLM writes text **one token at a time**, and why the amount of “past text in play” grows during a reply.
+You already know the product experience: you type a message, a language model writes a reply. That is enough for this lesson.
 
-## Start here
+What most people have **not** been shown is the shape of the work underneath. The model does not “understand the whole question and then emit a finished paragraph” as one act. It writes the reply **one small piece at a time**, and each piece immediately becomes part of the story for the next piece.
 
-You do **not** need transformer math. If you know chat models read a prompt and write a reply, you are ready.
+That single idea—_next piece, again and again_—is the foundation of everything later in this course. Memory pressure, KV caches, paging, and quantization only make sense once you can feel how a reply is a **growing timeline**, not a static document.
 
-## The generation loop
+You do **not** need transformer math, GPUs, or serving jargon yet. Those arrive after this loop is clear.
 
-An LLM does not compose a full answer in one mysterious step. It repeatedly asks:
+## Idea 1 — A reply is a sequence of decisions
+
+Imagine the model has already seen your prompt:
+
+> User: “Name three colors of the sky at sunset.”
+
+Before any answer text exists, the model’s job is not “produce three colors.” Its job is narrower and more mechanical:
 
 > Given everything so far, what is a good **next token**?
 
-A **token** is a chunk of text the model uses as a unit (a whole word, part of a word, or punctuation). Roughly:
+A **token** is a chunk of text the model treats as one unit—sometimes a whole word (`sky`), sometimes a fragment (`un`, `believ`, `able`), sometimes punctuation. For this course you can think of tokens as **beads on a string**: discrete pieces the model can add one by one.
 
-1. Start with your **prompt** (plus any system instructions).
-2. Predict the next token.
-3. **Append** that token to the context.
-4. Repeat until the reply finishes or a length limit is hit.
+So the first decision might yield `The`, then `sky`, then `can`, and so on—not a pre-written essay.
 
-That process is **autoregressive generation**: each step conditions on a **growing past**.
+## Idea 2 — Each decision becomes part of the past
 
-## Why length grows
+After the model chooses a next token, that token is **appended** to the text so far. The next decision does not start from a blank slate. It starts from:
 
-| What you do             | What happens to past text                                         |
-| ----------------------- | ----------------------------------------------------------------- |
-| Send a longer prompt    | More tokens exist before the first output token                   |
-| Generate a longer reply | Each new token adds to the past for the next step                 |
-| Multi-turn chat         | Earlier turns remain in context unless the product truncates them |
+**prompt + everything already written in the reply.**
 
-The purple beads in the scene are a **display-sized** token stream (not one mesh per real token). Drag **Generation progress** to move the “next” cursor; stretch **How long is the past?** to feel a longer history.
+That is the **generation loop**:
 
-<TryThis>
+1. Look at the text so far (prompt, then growing reply).
+2. Choose one next token.
+3. Append it.
+4. Repeat until the model stops (end of reply, length limit, or a stop signal).
 
-- Set progress near 0%: mostly empty / dim future slots.
-- Set progress near 100%: the stream is fully “written.”
-- Increase past length: more beads appear (capped for performance).
+Engineers call this **autoregressive generation**: each step is conditioned on a **growing past**. The name is optional; the loop is not.
 
-</TryThis>
-
-## Two meanings of “memory” (important split)
-
-1. **Product language** — “the model remembers our conversation” (text kept in the context window).
-2. **Engine language** — structures the GPU stores so it does not redo work (starts in lesson 3 as the **KV cache**).
-
-This lesson only needs (1). Lesson 2 asks _how_ the model looks at past tokens. Lesson 3 asks _what_ the engine stores for that looking-back.
-
-<Checkpoint>
-
-- Can you describe generation as a loop, not a single shot?
-- If the reply doubles in length, what roughly doubles in “past text the next step must consider”?
-
-</Checkpoint>
-
-<Assumptions>
-
-- We ignore tokenization details (BPE merges, special tokens).
-- We ignore sampling strategy (temperature, top-p)—they pick _which_ next token, not the loop shape.
-- The 3D stream is schematic; real contexts can be thousands of tokens.
-
-</Assumptions>
-
-<Sources>
-
-- Background: decoder-only language models and next-token prediction (standard LM framing; see also Attention Is All You Need `S01` as the modern attention backbone—not required reading yet).
-- Path doc: `docs/learning-outcomes.md` (Module 1).
-- Inventory: `docs/sources.md`.
-
-</Sources>
+**Watch the looping animation below.** It is schematic—not a live model. Prompt beads stay fixed. Reply beads light up one by one. Phase labels cycle: read past → choose next → append → repeat. When the display stream fills, the loop restarts so you can re-watch growth without touching any controls.

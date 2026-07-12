@@ -27,6 +27,11 @@ export type ModuleMeta = {
 
 export type ModuleDefinition = ModuleMeta & {
   loadContent: () => Promise<{ default: ComponentType }>;
+  /**
+   * Optional second prose block for narrative lessons (after the scene).
+   * Supports content → scene → more content cognitive order.
+   */
+  loadContentAfter?: () => Promise<{ default: ComponentType }>;
 };
 
 export const stageLabels: Record<ModuleStage, string> = {
@@ -56,6 +61,7 @@ export const modules: ModuleDefinition[] = [
     workspace: "narrative",
     status: "ready",
     loadContent: () => import("@/content/lessons/module-01-next-word.mdx"),
+    loadContentAfter: () => import("@/content/lessons/module-01-next-word-after.mdx"),
   },
   {
     id: "module-02",

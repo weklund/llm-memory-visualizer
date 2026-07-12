@@ -5,7 +5,7 @@
 
 export const sceneSummaries: Record<string, string> = {
   "next-word-loop":
-    "A horizontal stream of token blocks. As generation progress increases, more blocks light up to show the reply growing one piece at a time.",
+    "A looping animation of autoregressive generation: fixed prompt tokens on the left, a growing reply on the right. Phase labels cycle through read past, choose next token, append, and repeat. In free explore you can scrub progress manually.",
   "looking-back":
     "A row of past tokens above a grid of attention weights. Brighter cells mean the model looks more at that past position when forming the next word. The pattern is schematic, not a real model run.",
   "remembering-work":
