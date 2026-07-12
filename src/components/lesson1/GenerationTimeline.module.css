@@ -80,6 +80,15 @@
   color: var(--color-text);
 }
 
+.feedNote {
+  margin: calc(var(--space-2) * -1) 0 var(--space-2);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  color: var(--color-text-subtle);
+}
+
 /* Pipeline: context → schematic model → 1 token */
 .pipeline {
   display: flex;
@@ -102,15 +111,26 @@
 .pipeIn,
 .pipeOut {
   flex: 1 1 5rem;
-  min-width: 4.5rem;
+  min-width: 5.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.2rem;
+  gap: 0.25rem;
   padding: var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-bg-panel);
+}
+
+/* Match context box chrome so “in” reads as a shrink of the box above */
+.pipeIn {
+  border-color: color-mix(in srgb, var(--color-key) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-key) 6%, var(--color-bg-panel));
+  flex: 1.4 1 7rem;
+}
+
+.pipeInActive {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-key) 40%, transparent);
 }
 
 .pipeTag {
@@ -121,9 +141,58 @@
   color: var(--color-text-subtle);
 }
 
-.pipeInText {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+.miniContext {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 2.4rem;
+}
+
+.miniPromptRow,
+.miniReplyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  align-items: center;
+}
+
+.miniPromptChip {
+  width: 0.45rem;
+  height: 0.55rem;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--color-key) 45%, var(--color-bg-muted));
+  border: 1px solid color-mix(in srgb, var(--color-key) 40%, var(--color-border));
+}
+
+.miniReplyChip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 3.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  height: 0.95rem;
+  padding: 0 0.2rem;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  line-height: 1;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-token) 22%, var(--color-bg-muted));
+  border: 1px solid color-mix(in srgb, var(--color-token) 40%, var(--color-border));
+}
+
+.miniEmptyReply {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-text-subtle);
+  font-style: italic;
+}
+
+.pipeInCount {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-key);
 }
 
 .pipeArrow {

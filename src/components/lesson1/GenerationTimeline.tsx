@@ -29,7 +29,8 @@ export function GenerationTimeline() {
   const pastLength = PROMPT_TOKEN_COUNT + step;
   const done = step >= total;
   const nextToken = done ? null : DEMO_REPLY_TOKENS[step];
-  const replySoFar = DEMO_REPLY_TOKENS.slice(0, step).join(" ");
+  const replyTokens = DEMO_REPLY_TOKENS.slice(0, step);
+  const replySoFar = replyTokens.join(" ");
 
   const clearPassTimer = () => {
     if (passTimer.current != null) {
@@ -113,7 +114,7 @@ export function GenerationTimeline() {
         <strong>full model pass</strong>, then one new token is appended to the context.
       </figcaption>
 
-      <div className={styles.contextBox}>
+      <div className={styles.contextBox} id="gen-timeline-context">
         <span className={styles.contextLabel}>Context the next pass sees</span>
         <p className={styles.contextText}>
           <span className={styles.promptText}>{DEMO_PROMPT}</span>
@@ -135,6 +136,10 @@ export function GenerationTimeline() {
         </p>
       </div>
 
+      <p className={styles.feedNote} aria-hidden="true">
+        ↓ that same context, compressed as input to the model
+      </p>
+
       <div
         className={[
           styles.pipeline,
@@ -142,9 +147,31 @@ export function GenerationTimeline() {
         ].join(" ")}
         aria-hidden="true"
       >
-        <div className={styles.pipeIn}>
-          <span className={styles.pipeTag}>in</span>
-          <span className={styles.pipeInText}>all past text</span>
+        <div
+          className={[styles.pipeIn, phase === "running" ? styles.pipeInActive : ""]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <span className={styles.pipeTag}>in · mini context</span>
+          <div className={styles.miniContext} title="Same past text as the box above">
+            <span className={styles.miniPromptRow}>
+              {Array.from({ length: PROMPT_TOKEN_COUNT }, (_, i) => (
+                <span key={`mp-${i}`} className={styles.miniPromptChip} />
+              ))}
+            </span>
+            {replyTokens.length > 0 ? (
+              <span className={styles.miniReplyRow}>
+                {replyTokens.map((tok, i) => (
+                  <span key={`mr-${i}`} className={styles.miniReplyChip}>
+                    {tok.length > 4 ? `${tok.slice(0, 3)}…` : tok}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              <span className={styles.miniEmptyReply}>reply not started</span>
+            )}
+          </div>
+          <span className={styles.pipeInCount}>{pastLength} tok</span>
         </div>
         <span className={styles.pipeArrow}>→</span>
         <div className={styles.net}>
