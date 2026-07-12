@@ -6,6 +6,11 @@ import styles from "./MentalModelContrast.module.css";
 const TOKENS = DEMO_REPLY_TOKENS;
 const FULL_TEXT = TOKENS.join(" ").replace(" — ", "—");
 
+/** Left card phase beat (ms) — think / dump / hold steps */
+const WRONG_BEAT_MS = 1800;
+/** Right card: time between tokens (ms) */
+const TOKEN_STEP_MS = 1600;
+
 type WrongPhase = "think" | "dump" | "hold";
 
 /**
@@ -13,6 +18,7 @@ type WrongPhase = "think" | "dump" | "hold";
  */
 export function MentalModelContrast() {
   const reduceMotion = usePrefersReducedMotion();
+  const [playing, setPlaying] = useState(!reduceMotion);
   const [count, setCount] = useState(reduceMotion ? TOKENS.length : 0);
   const [phase, setPhase] = useState<"writing" | "hold" | "reset">("writing");
   const [wrongPhase, setWrongPhase] = useState<WrongPhase>(
@@ -23,44 +29,46 @@ export function MentalModelContrast() {
     if (reduceMotion) {
       setCount(TOKENS.length);
       setWrongPhase("dump");
+      setPlaying(false);
       return;
     }
 
-    // Left: think (empty) → dump all → hold → clear → think…
-    // ~1.1s per beat: longer think, brief dump flash, longer hold to read
+    if (!playing) return;
+
+    // Left: think → dump → hold → think…
     let t = 0;
-    setWrongPhase("think");
     const wrongTimer = window.setInterval(() => {
       t += 1;
-      const beat = t % 8;
-      if (beat <= 3) setWrongPhase("think"); // ~4.4s thinking
-      else if (beat === 4) setWrongPhase("dump"); // pop-in
-      else setWrongPhase("hold"); // ~3.3s hold full reply
-    }, 1100);
+      const beat = t % 9;
+      if (beat <= 4)
+        setWrongPhase("think"); // ~9s thinking
+      else if (beat === 5) setWrongPhase("dump");
+      else setWrongPhase("hold"); // ~5.4s hold
+    }, WRONG_BEAT_MS);
 
-    // Right: one token per beat (~1s each so chips are readable)
-    let i = 0;
-    setCount(0);
-    setPhase("writing");
+    // Right: one token per beat
+    let i = count;
     const stepTimer = window.setInterval(() => {
       i += 1;
       if (i <= TOKENS.length) {
         setCount(i);
         setPhase("writing");
-      } else if (i <= TOKENS.length + 2) {
-        setPhase("hold"); // hold finished reply longer before reset
+      } else if (i <= TOKENS.length + 3) {
+        setPhase("hold");
       } else {
         i = 0;
         setCount(0);
         setPhase("reset");
       }
-    }, 1000);
+    }, TOKEN_STEP_MS);
 
     return () => {
       window.clearInterval(wrongTimer);
       window.clearInterval(stepTimer);
     };
-  }, [reduceMotion]);
+    // Restart timers from current count when unpausing (intentional)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when play/reduceMotion flips
+  }, [reduceMotion, playing]);
 
   const nextLabel =
     count === 0
@@ -77,6 +85,37 @@ export function MentalModelContrast() {
       className={styles.figure}
       aria-label="Two mental models of how a reply is written"
     >
+      <div className={styles.toolbar}>
+        <button
+          type="button"
+          className={styles.playBtn}
+          onClick={() => setPlaying((p) => !p)}
+          disabled={reduceMotion}
+          aria-pressed={playing}
+          aria-label={playing ? "Pause animation" : "Play animation"}
+          title={
+            reduceMotion ? "Animation off (reduced motion)" : playing ? "Pause" : "Play"
+          }
+        >
+          {playing ? (
+            <span className={styles.iconPause} aria-hidden="true">
+              <i />
+              <i />
+            </span>
+          ) : (
+            <span className={styles.iconPlay} aria-hidden="true" />
+          )}
+          <span className={styles.playLabel}>{playing ? "Pause" : "Play"}</span>
+        </button>
+        <span className={styles.toolbarHint}>
+          {reduceMotion
+            ? "Static view · reduced motion"
+            : playing
+              ? "Looping both sides"
+              : "Paused"}
+        </span>
+      </div>
+
       <div className={styles.grid}>
         <div className={styles.card}>
           <p className={styles.label}>Common mental model</p>
