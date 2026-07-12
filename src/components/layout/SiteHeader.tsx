@@ -1,17 +1,28 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import styles from "./SiteHeader.module.css";
 
 export function SiteHeader() {
   return (
     <header className={styles.header}>
-      <Link to="/" className={styles.brand}>
+      <NavLink to="/" className={styles.brand ?? "brand"} end>
         <span className={styles.mark} aria-hidden="true" />
         <span>LLM Memory Visualizer</span>
-      </Link>
+      </NavLink>
       <nav className={styles.nav} aria-label="Primary">
-        <Link to="/">Modules</Link>
-        <span className={styles.badge}>Milestone 1 scaffold</span>
+        <NavLink to="/" className={navClass} end>
+          Path
+        </NavLink>
+        <NavLink to="/references" className={navClass}>
+          References
+        </NavLink>
+        <span className={styles.badge}>Lessons 1–9</span>
       </nav>
     </header>
   );
+}
+
+function navClass({ isActive }: { isActive: boolean }): string {
+  const base = styles.navLink ?? "navLink";
+  const active = styles.navLinkActive ?? "navLinkActive";
+  return isActive ? `${base} ${active}` : base;
 }

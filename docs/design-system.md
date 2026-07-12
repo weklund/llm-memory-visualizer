@@ -69,7 +69,7 @@ Important states **must not rely on color alone** (a11y + Module QA):
 
 - Prefer slow ambient motion (`~0.08 rad/s`) so it does not compete with reading.
 - Interaction feedback: `--duration-fast` / `--duration-normal` with `--ease-out`.
-- Respect reduced motion in a later a11y pass (#23): disable autospin when `prefers-reduced-motion: reduce`.
+- Respect reduced motion (#23): scene autospin and bandwidth ribbon animation disable when `prefers-reduced-motion: reduce` (`usePrefersReducedMotion`).
 
 ## Components
 

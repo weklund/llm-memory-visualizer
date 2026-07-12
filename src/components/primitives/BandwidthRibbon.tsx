@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { Mesh } from "three";
+import { usePrefersReducedMotion } from "@/lib/prefersReducedMotion";
 import { simColors } from "@/lib/simColors";
 
 export type BandwidthRibbonProps = {
@@ -23,6 +24,7 @@ export function BandwidthRibbon({
   animated = true,
 }: BandwidthRibbonProps) {
   const ref = useRef<Mesh>(null);
+  const reduceMotion = usePrefersReducedMotion();
   const mid: [number, number, number] = [
     (from[0] + to[0]) / 2,
     (from[1] + to[1]) / 2 + 0.15,
@@ -31,7 +33,7 @@ export function BandwidthRibbon({
   const length = Math.hypot(to[0] - from[0], to[1] - from[1], to[2] - from[2]);
 
   useFrame(({ clock }) => {
-    if (!animated || !ref.current) return;
+    if (!animated || reduceMotion || !ref.current) return;
     const t = clock.getElapsedTime();
     ref.current.position.x = mid[0] + Math.sin(t * 3) * 0.08 * intensity;
     ref.current.scale.y = 0.7 + 0.4 * Math.sin(t * 4) * intensity;

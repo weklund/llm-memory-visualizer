@@ -39,6 +39,16 @@ This folder is the **content ground truth** for the LLM Memory Visualizer. Imple
 
 Runnable app: `npm install && npm run dev` (see root README).
 
+## Accuracy & QA (Milestone 5)
+
+| Document                                         | Issue | Purpose                                             |
+| ------------------------------------------------ | ----- | --------------------------------------------------- |
+| [accuracy-checklist.md](./accuracy-checklist.md) | #21   | Per-module formula/claim validation                 |
+| [paper-index.md](./paper-index.md)               | #22   | Paper index + qualitative technique matrix          |
+| [a11y-checklist.md](./a11y-checklist.md)         | #23   | Keyboard, scene summaries, reduced motion, contrast |
+
+In-app: `/references` (paper index + comparison matrix).
+
 ## Next milestones
 
-See GitHub milestones 3–6 (MVP modules → advanced modules → QA → launch).
+See GitHub milestone 6 (guided mode, performance, deploy).

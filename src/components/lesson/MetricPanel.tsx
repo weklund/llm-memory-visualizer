@@ -21,7 +21,12 @@ export function MetricPanel() {
   const evictionSaved = memorySavedRatio(evictionPlan);
 
   return (
-    <section className={styles.panel} aria-labelledby="metrics-heading">
+    <section
+      className={styles.panel}
+      aria-labelledby="metrics-heading"
+      aria-live="polite"
+      aria-atomic="false"
+    >
       <h2 id="metrics-heading" className={styles.heading}>
         Metrics
       </h2>

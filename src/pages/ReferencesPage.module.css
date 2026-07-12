@@ -1,0 +1,225 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  max-width: 56rem;
+}
+
+.hero h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--color-text);
+  margin-bottom: var(--space-3);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent-strong);
+  margin-bottom: var(--space-2);
+}
+
+.section h2 {
+  font-size: var(--text-xl);
+  color: var(--color-text);
+}
+
+.lede {
+  margin-bottom: var(--space-4);
+}
+
+.lessonList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.lessonCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-panel);
+  padding: var(--space-4);
+}
+
+.lessonHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.lessonHead a {
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.lessonHead a:hover {
+  color: var(--color-accent-strong);
+}
+
+.aka {
+  font-size: var(--text-sm);
+  color: var(--color-text-subtle);
+}
+
+.inlineSources {
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.inlineSources a {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.muted {
+  color: var(--color-text-subtle);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-panel);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  min-width: 48rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+  color: var(--color-text-muted);
+}
+
+.table thead th {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-subtle);
+  background: var(--color-bg-muted);
+  white-space: nowrap;
+}
+
+.table tbody th {
+  font-weight: 600;
+  color: var(--color-text);
+  max-width: 12rem;
+}
+
+.table tbody tr:last-child th,
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.band {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  background: var(--color-bg-muted);
+}
+
+.band_high {
+  border-color: color-mix(in srgb, var(--color-hit) 50%, var(--color-border));
+  color: var(--color-hit);
+}
+
+.band_medium {
+  border-color: color-mix(in srgb, var(--color-warning) 50%, var(--color-border));
+  color: var(--color-warning);
+}
+
+.band_low {
+  color: var(--color-text-muted);
+}
+
+.band_varies {
+  color: var(--color-text-subtle);
+}
+
+.band_negative {
+  border-color: color-mix(in srgb, var(--color-danger) 50%, var(--color-border));
+  color: var(--color-danger);
+}
+
+.footnotes {
+  margin: var(--space-4) 0 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-subtle);
+}
+
+.group {
+  margin-top: var(--space-6);
+}
+
+.groupTitle {
+  font-size: var(--text-base);
+  color: var(--color-text);
+  margin-bottom: var(--space-3);
+}
+
+.paperList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.paperLink {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.paperLink:hover .paperTitle {
+  color: var(--color-accent-strong);
+}
+
+.paperId {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-accent-strong);
+  min-width: 2.5rem;
+}
+
+.paperTitle {
+  font-weight: 500;
+}
+
+.meta {
+  display: block;
+  margin-top: var(--space-1);
+  padding-left: calc(2.5rem + var(--space-2));
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 640px) {
+  .meta {
+    padding-left: 0;
+  }
+}

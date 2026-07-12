@@ -4,7 +4,7 @@ Canonical literature and systems inventory for the LLM Memory Visualizer.
 This document grounds learning modules in peer-reviewed papers, preprints, system docs, and high-quality explainers.
 
 **Last reviewed:** 2026-07-12  
-**Status:** Milestone 0 — research foundation  
+**Status:** Milestone 5 — accuracy validated (see `docs/accuracy-checklist.md`)  
 **Related issues:** #1, #21, #22
 
 ---
@@ -112,16 +112,17 @@ Each lesson should map to **at least two** supporting sources where possible (fo
 
 ---
 
-## Claims explicitly marked for later validation (Milestone 5 / issue #21)
+## Claims that must stay contextual (validated in Milestone 5 / #21)
 
-These appear often in secondary content and must **not** be stated as universal facts without context:
+These appear often in secondary content and must **not** be stated as universal facts without context.  
+**Teaching resolution:** completed 2026-07-12 — lessons 1–9 and `docs/accuracy-checklist.md` enforce the framing below.
 
-1. **“KV cache is X% of GPU memory”** — Depends on model size, context, batch, weight precision, and concurrent sequences. Always parameterize with a worked example.
-2. **“Systems waste 60–80% of KV memory without paging”** — Figures originate in PagedAttention/vLLM evaluations under specific reservation policies; restate as paper-reported results.
-3. **Exact throughput multipliers** (e.g. “24× vs HuggingFace”) — Benchmark- and version-dependent; teach _mechanism_, show _example numbers_ with source.
-4. **Quantization quality at 2-bit / 3-bit** — Model- and method-specific (KIVI vs KVQuant vs FP8); always name the method and residual strategy.
-5. **Security success rates** — From specific lab setups (PROMPTPEEK scenarios); teach residual risk and mitigations, not guaranteed exploitability of every deployment.
-6. **“Infinite context” claims** (StreamingLLM-style) — Means _streaming with bounded cache_, not lossless infinite memory of all past tokens.
+1. **“KV cache is X% of GPU memory”** — Depends on model size, context, batch, weight precision, and concurrent sequences. Always parameterize with a worked example. → _Lesson 3 assumptions._
+2. **“Systems waste 60–80% of KV memory without paging”** — Figures originate in PagedAttention/vLLM evaluations under specific reservation policies; restate as paper-reported results. → _Lesson 5._
+3. **Exact throughput multipliers** (e.g. “24× vs HuggingFace”) — Benchmark- and version-dependent; teach _mechanism_, show _example numbers_ with source. → _No universal multipliers in MDX._
+4. **Quantization quality at 2-bit / 3-bit** — Model- and method-specific (KIVI vs KVQuant vs FP8); always name the method and residual strategy. → _Lesson 7._
+5. **Security success rates** — From specific lab setups (PROMPTPEEK scenarios); teach residual risk and mitigations, not guaranteed exploitability of every deployment. → _Lesson 9._
+6. **“Infinite context” claims** (StreamingLLM-style) — Means _streaming with bounded cache_, not lossless infinite memory of all past tokens. → _Lesson 8._
 
 ---
 
@@ -151,3 +152,4 @@ These appear often in secondary content and must **not** be stated as universal 
 | Date       | Change                                                                                 |
 | ---------- | -------------------------------------------------------------------------------------- |
 | 2026-07-12 | Initial inventory for Milestone 0 (#1); module coverage matrix; NEEDS-VALIDATION list. |
+| 2026-07-12 | Milestone 5: accuracy checklist; claims reframed as contextual teaching rules (#21).   |

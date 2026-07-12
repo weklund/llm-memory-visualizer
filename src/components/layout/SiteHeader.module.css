@@ -47,13 +47,20 @@
   font-size: var(--text-sm);
 }
 
-.nav a {
+.navLink {
   color: var(--color-text-muted);
   text-decoration: none;
+  padding: var(--space-1) var(--space-1);
+  border-radius: var(--radius-sm);
 }
 
-.nav a:hover {
+.navLink:hover {
   color: var(--color-text);
+}
+
+.navLinkActive {
+  color: var(--color-text);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
 }
 
 .badge {

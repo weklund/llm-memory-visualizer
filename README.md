@@ -39,8 +39,9 @@ CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (
 | 8   | Forgetting on purpose                   | Eviction · sinks · heavy hitters |
 | 9   | When sharing leaks                      | Shared-cache side channels       |
 
-Routes: `/` (path map), `/modules/:slug` (lesson shell).  
-Curriculum detail: [`docs/learning-outcomes.md`](./docs/learning-outcomes.md).
+Routes: `/` (path map), `/modules/:slug` (lesson shell), `/references` (paper index + technique matrix).  
+Curriculum detail: [`docs/learning-outcomes.md`](./docs/learning-outcomes.md).  
+Accuracy QA: [`docs/accuracy-checklist.md`](./docs/accuracy-checklist.md).
 
 ## Stack
 
@@ -55,10 +56,13 @@ Design system: [`docs/design-system.md`](./docs/design-system.md)
 
 ## Research foundation
 
-| Document                                                 | Description                              |
-| -------------------------------------------------------- | ---------------------------------------- |
-| [docs/sources.md](./docs/sources.md)                     | Source inventory and paper map           |
-| [docs/learning-outcomes.md](./docs/learning-outcomes.md) | Prerequisites, path, per-lesson outcomes |
-| [docs/glossary.md](./docs/glossary.md)                   | Canonical vocabulary and KV formulas     |
+| Document                                                   | Description                              |
+| ---------------------------------------------------------- | ---------------------------------------- |
+| [docs/sources.md](./docs/sources.md)                       | Source inventory and paper map           |
+| [docs/paper-index.md](./docs/paper-index.md)               | Learner paper index + technique matrix   |
+| [docs/learning-outcomes.md](./docs/learning-outcomes.md)   | Prerequisites, path, per-lesson outcomes |
+| [docs/glossary.md](./docs/glossary.md)                     | Canonical vocabulary and KV formulas     |
+| [docs/accuracy-checklist.md](./docs/accuracy-checklist.md) | Milestone 5 technical validation         |
+| [docs/a11y-checklist.md](./docs/a11y-checklist.md)         | Accessibility pass notes                 |
 
 Simulation math in `src/lib/kvMemory.ts` must stay aligned with the glossary (used from lesson 3’s memory lab onward).

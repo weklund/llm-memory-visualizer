@@ -48,7 +48,8 @@ export function HomePage() {
         <p className={styles.pathNote}>
           Cards show a plain-language title first. Technical names (PagedAttention,
           quantization, …) appear as “also known as” once the idea has a place in the
-          story.
+          story. For papers and a side-by-side technique matrix, open{" "}
+          <Link to="/references">References</Link>.
         </p>
       </section>
 

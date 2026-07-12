@@ -4,7 +4,7 @@ Shared vocabulary and formulas for all lessons and simulations.
 If a lesson needs a new symbol, **add it here first** so modules stay consistent.
 
 **Last reviewed:** 2026-07-12  
-**Status:** Milestone 0 — research foundation  
+**Status:** Canonical formulas (validated Milestone 5 / #21)  
 **Related issues:** #3, #16, #21
 
 ---
