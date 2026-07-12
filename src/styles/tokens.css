@@ -1,0 +1,89 @@
+/**
+ * Design tokens — semantic colors for memory visualization.
+ * Documented in docs/design-system.md
+ *
+ * Important states never rely on color alone; pair with labels,
+ * patterns, or shape (see design system).
+ */
+:root {
+  /* Surfaces (dark-first theme) */
+  --color-bg: #0b0f14;
+  --color-bg-elevated: #121820;
+  --color-bg-panel: #161d27;
+  --color-bg-muted: #1c2532;
+  --color-border: #2a3544;
+  --color-border-strong: #3d4d63;
+
+  /* Text */
+  --color-text: #e8eef6;
+  --color-text-muted: #9aabc0;
+  --color-text-subtle: #6b7c91;
+
+  /* Brand / UI chrome */
+  --color-accent: #5b9fd4;
+  --color-accent-strong: #7eb8e8;
+  --color-focus: #f0c14a;
+
+  /* Semantic simulation roles */
+  --color-token: #c4b5fd;
+  --color-key: #38bdf8;
+  --color-value: #34d399;
+  --color-page: #fbbf24;
+  --color-page-shared: #f59e0b;
+  --color-hbm: #64748b;
+  --color-sram: #a78bfa;
+  --color-compute: #fb7185;
+  --color-bandwidth: #22d3ee;
+  --color-fragment-waste: #f87171;
+  --color-hit: #4ade80;
+  --color-miss: #f472b6;
+
+  /* Status */
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  /* Typography */
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Radii & elevation */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 35%);
+
+  /* Layout */
+  --header-height: 3.5rem;
+  --panel-min: 16rem;
+  --content-max: 72rem;
+  --scene-min-height: 18rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+}

@@ -1,0 +1,27 @@
+## What this module will teach
+
+The **KV cache** stores key and value tensors for tokens already processed so decode does not recompute them. Its size grows with sequence length, batch concurrency, layers, and element precision.
+
+### Canonical formula
+
+For batch size `B`, sequence length `S`, layers `L`, KV heads `H_kv`, head dim `d_h`, and bytes per element `bpe`:
+
+```text
+M_KV = 2 · B · L · H_kv · S · d_h · bpe
+```
+
+The factor of **2** is keys **and** values. Use `H_kv = H_q` for multi-head attention; GQA/MQA reduce `H_kv`.
+
+### Assumptions (always show these)
+
+- No cross-sequence **physical** sharing of blocks
+- Quantization metadata (scales, residuals) ignored unless stated
+- Worked default matches `docs/glossary.md`: 32 layers, 8 KV heads, `d_h=128`, `S=4096`, FP16 → **512 MiB**
+
+### Sources
+
+- Attention Is All You Need (`S01`)
+- GQA (`S03`), MQA (`S02`)
+- See `docs/sources.md` for the full map
+
+Use the **controls** and **metrics** panels to change knobs; the 3D scene is a placeholder grid until Milestone 2 primitives land.

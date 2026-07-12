@@ -2,7 +2,39 @@
 
 Interactive learning material for LLM memory optimization, built around 3D simulations and first-principles mental models.
 
-The project will teach how KV cache memory behaves during inference and how modern systems reduce memory pressure through paging, prefix caching, scheduling, token eviction, quantization, and related security analysis.
+The project teaches how KV cache memory behaves during inference and how modern systems reduce memory pressure through paging, prefix caching, scheduling, token eviction, quantization, and related security analysis.
+
+## Quick start
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+| Script              | Description                    |
+| ------------------- | ------------------------------ |
+| `npm run dev`       | Vite dev server                |
+| `npm run build`     | Typecheck + production build   |
+| `npm run preview`   | Preview `dist/`                |
+| `npm test`          | Unit tests (KV math, no WebGL) |
+| `npm run lint`      | ESLint                         |
+| `npm run format`    | Prettier                       |
+| `npm run typecheck` | `tsc --noEmit`                 |
+
+CI runs format check, lint, typecheck, test, and build on pushes/PRs to `main` (see `.github/workflows/ci.yml`).
+
+## Stack
+
+- **Vite** + **React** + **TypeScript**
+- **React Three Fiber** + **Drei** + **Three.js**
+- **MDX** lessons
+- **Zustand** simulation state
+- **Vitest** + **ESLint** + **Prettier**
+
+Conventions: [`docs/conventions.md`](./docs/conventions.md)  
+Design system: [`docs/design-system.md`](./docs/design-system.md)
 
 ## Planned learning modules
 
@@ -14,24 +46,18 @@ The project will teach how KV cache memory behaves during inference and how mode
 6. Token eviction and attention sparsity
 7. Security risks in shared caching systems
 
+Routes: `/` (module index), `/modules/:slug` (lesson shell).
+
 ## Research foundation (Milestone 0)
 
-Content ground truth lives in [`docs/`](./docs/):
+| Document                                                 | Description                          |
+| -------------------------------------------------------- | ------------------------------------ |
+| [docs/sources.md](./docs/sources.md)                     | Source inventory and paper map       |
+| [docs/learning-outcomes.md](./docs/learning-outcomes.md) | Prerequisites and outcomes           |
+| [docs/glossary.md](./docs/glossary.md)                   | Canonical vocabulary and KV formulas |
 
-| Document | Description |
-|----------|-------------|
-| [docs/sources.md](./docs/sources.md) | Source inventory and paper map (verified primaries + confidence notes) |
-| [docs/learning-outcomes.md](./docs/learning-outcomes.md) | Learner prerequisites and per-module outcomes |
-| [docs/glossary.md](./docs/glossary.md) | Canonical vocabulary and KV memory formulas |
-
-## Initial implementation direction
-
-- React app scaffolded with Vite or Next.js
-- Three.js via React Three Fiber
-- MDX-based lessons
-- Reusable simulation primitives for tokens, cache pages, memory grids, attention matrices, and GPU pipelines
-- Paper-backed explanations with explicit formulas and assumptions (see `docs/glossary.md` and `docs/sources.md`)
+Simulation math in `src/lib/kvMemory.ts` must stay aligned with the glossary.
 
 ## Project tracking
 
-Work is tracked in GitHub issues and milestones (research → scaffold → primitives → MVP modules → advanced modules → QA → launch).
+GitHub issues and milestones: research → **scaffold** → primitives → MVP modules → advanced modules → QA → launch.
