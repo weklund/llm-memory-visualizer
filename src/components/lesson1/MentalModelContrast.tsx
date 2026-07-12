@@ -27,17 +27,18 @@ export function MentalModelContrast() {
     }
 
     // Left: think (empty) → dump all → hold → clear → think…
+    // ~1.1s per beat: longer think, brief dump flash, longer hold to read
     let t = 0;
     setWrongPhase("think");
     const wrongTimer = window.setInterval(() => {
       t += 1;
-      const beat = t % 7;
-      if (beat <= 2) setWrongPhase("think");
-      else if (beat === 3) setWrongPhase("dump");
-      else setWrongPhase("hold"); // 4–6 hold the full dump
-    }, 700);
+      const beat = t % 8;
+      if (beat <= 3) setWrongPhase("think"); // ~4.4s thinking
+      else if (beat === 4) setWrongPhase("dump"); // pop-in
+      else setWrongPhase("hold"); // ~3.3s hold full reply
+    }, 1100);
 
-    // Right: one token per beat
+    // Right: one token per beat (~1s each so chips are readable)
     let i = 0;
     setCount(0);
     setPhase("writing");
@@ -46,14 +47,14 @@ export function MentalModelContrast() {
       if (i <= TOKENS.length) {
         setCount(i);
         setPhase("writing");
-      } else if (i === TOKENS.length + 1) {
-        setPhase("hold");
+      } else if (i <= TOKENS.length + 2) {
+        setPhase("hold"); // hold finished reply longer before reset
       } else {
         i = 0;
         setCount(0);
         setPhase("reset");
       }
-    }, 550);
+    }, 1000);
 
     return () => {
       window.clearInterval(wrongTimer);

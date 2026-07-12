@@ -66,10 +66,10 @@
   background: var(--color-bg-panel);
   color: var(--color-text-subtle);
   transition:
-    color 160ms var(--ease-out),
-    border-color 160ms var(--ease-out),
-    background 160ms var(--ease-out),
-    box-shadow 160ms var(--ease-out);
+    color 320ms var(--ease-out),
+    border-color 320ms var(--ease-out),
+    background 320ms var(--ease-out),
+    box-shadow 320ms var(--ease-out);
 }
 
 .phasePillIdle {
@@ -96,8 +96,8 @@
   opacity: 0.35;
   color: var(--color-text-subtle);
   transition:
-    opacity 160ms var(--ease-out),
-    color 160ms var(--ease-out);
+    opacity 320ms var(--ease-out),
+    color 320ms var(--ease-out);
 }
 
 .arrowActive {
@@ -118,10 +118,10 @@
   display: flex;
   align-items: center;
   transition:
-    opacity 180ms var(--ease-out),
-    transform 180ms var(--ease-out),
-    border-color 180ms var(--ease-out),
-    background 180ms var(--ease-out);
+    opacity 360ms var(--ease-out),
+    transform 360ms var(--ease-out),
+    border-color 360ms var(--ease-out),
+    background 360ms var(--ease-out);
 }
 
 .paragraphThink {
@@ -140,7 +140,7 @@
 }
 
 .paragraphPop {
-  animation: dumpPop 420ms var(--ease-out);
+  animation: dumpPop 700ms var(--ease-out);
 }
 
 @keyframes dumpPop {
@@ -243,11 +243,11 @@
   font-size: var(--text-xs);
   border: 1px solid var(--color-border);
   transition:
-    background 200ms var(--ease-out),
-    border-color 200ms var(--ease-out),
-    color 200ms var(--ease-out),
-    transform 200ms var(--ease-out),
-    opacity 200ms var(--ease-out);
+    background 350ms var(--ease-out),
+    border-color 350ms var(--ease-out),
+    color 350ms var(--ease-out),
+    transform 350ms var(--ease-out),
+    opacity 350ms var(--ease-out);
 }
 
 .chipOff {
