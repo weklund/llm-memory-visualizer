@@ -74,6 +74,23 @@ export function internalFragmentationTokens(
   return blocks * blockSize - sequenceLength;
 }
 
+/**
+ * Rough weight memory: params × bytes per weight element.
+ * Teaching estimate only — ignores optimizers, fragmentation, CUDA context.
+ */
+export function estimateWeightBytes(
+  parameterCount: number,
+  bytesPerElement: number,
+): number {
+  if (!Number.isFinite(parameterCount) || parameterCount < 0) {
+    throw new Error("parameterCount must be a non-negative finite number");
+  }
+  if (!Number.isFinite(bytesPerElement) || bytesPerElement < 0) {
+    throw new Error("bytesPerElement must be a non-negative finite number");
+  }
+  return parameterCount * bytesPerElement;
+}
+
 /** Format bytes for metric readouts. */
 export function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes)) return "—";

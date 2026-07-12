@@ -101,3 +101,10 @@ describe("formatBytes", () => {
     expect(formatBytes(536_870_912)).toBe("512 MiB");
   });
 });
+
+describe("estimateWeightBytes", () => {
+  it("scales params by element size", async () => {
+    const { estimateWeightBytes } = await import("./kvMemory");
+    expect(estimateWeightBytes(1_000_000_000, 2)).toBe(2_000_000_000);
+  });
+});

@@ -1,37 +1,70 @@
+## Learning goal
+
+Explain how an LLM writes text **one token at a time**, and why the amount of “past text in play” grows during a reply.
+
 ## Start here
 
-You do **not** need to know how transformers are implemented. If you know that a chat model reads your message and writes a reply, you are ready.
+You do **not** need transformer math. If you know chat models read a prompt and write a reply, you are ready.
 
-## The loop
+## The generation loop
 
 An LLM does not compose a full answer in one mysterious step. It repeatedly asks:
 
 > Given everything so far, what is a good **next token**?
 
-A **token** is a chunk of text the model uses as a unit (a word, part of a word, or punctuation). Roughly:
+A **token** is a chunk of text the model uses as a unit (a whole word, part of a word, or punctuation). Roughly:
 
-1. Start with your **prompt** (and any system instructions).
+1. Start with your **prompt** (plus any system instructions).
 2. Predict the next token.
 3. **Append** that token to the context.
-4. Go back to step 2 until the reply is done (or a limit is hit).
+4. Repeat until the reply finishes or a length limit is hit.
 
-That is **autoregressive generation**: each step conditions on the growing past.
+That process is **autoregressive generation**: each step conditions on a **growing past**.
 
-## Why this matters for “memory”
+## Why length grows
 
-Every step, the amount of past text the model must account for can **grow**:
+| What you do             | What happens to past text                                         |
+| ----------------------- | ----------------------------------------------------------------- |
+| Send a longer prompt    | More tokens exist before the first output token                   |
+| Generate a longer reply | Each new token adds to the past for the next step                 |
+| Multi-turn chat         | Earlier turns remain in context unless the product truncates them |
 
-- A longer prompt → more past at step 1 of the reply.
-- A longer reply → more past by the final token.
+The purple beads in the scene are a **display-sized** token stream (not one mesh per real token). Drag **Generation progress** to move the “next” cursor; stretch **How long is the past?** to feel a longer history.
 
-Later lessons ask: _what does the computer store so it does not redo all that work from scratch?_ First we need one more idea—**looking back** at earlier tokens (Module 2).
+<TryThis>
 
-## What you should be able to say after this lesson
+- Set progress near 0%: mostly empty / dim future slots.
+- Set progress near 100%: the stream is fully “written.”
+- Increase past length: more beads appear (capped for performance).
 
-- Generation is a **loop**, not a single shot.
-- Context length grows with prompt + generated tokens.
-- “Memory” in product talk is related to, but not the same as, **engine memory** we will measure later.
+</TryThis>
 
-## Coming in 3D
+## Two meanings of “memory” (important split)
 
-A token stream that lengthens each step—visual groundwork for the cache that appears in Module 3.
+1. **Product language** — “the model remembers our conversation” (text kept in the context window).
+2. **Engine language** — structures the GPU stores so it does not redo work (starts in lesson 3 as the **KV cache**).
+
+This lesson only needs (1). Lesson 2 asks _how_ the model looks at past tokens. Lesson 3 asks _what_ the engine stores for that looking-back.
+
+<Checkpoint>
+
+- Can you describe generation as a loop, not a single shot?
+- If the reply doubles in length, what roughly doubles in “past text the next step must consider”?
+
+</Checkpoint>
+
+<Assumptions>
+
+- We ignore tokenization details (BPE merges, special tokens).
+- We ignore sampling strategy (temperature, top-p)—they pick _which_ next token, not the loop shape.
+- The 3D stream is schematic; real contexts can be thousands of tokens.
+
+</Assumptions>
+
+<Sources>
+
+- Background: decoder-only language models and next-token prediction (standard LM framing; see also Attention Is All You Need `S01` as the modern attention backbone—not required reading yet).
+- Path doc: `docs/learning-outcomes.md` (Module 1).
+- Inventory: `docs/sources.md`.
+
+</Sources>

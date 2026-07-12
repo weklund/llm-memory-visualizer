@@ -84,7 +84,7 @@
   grid-template-columns: 1fr;
   grid-template-areas:
     "scene"
-    "aside"
+    "controls"
     "content";
 }
 
@@ -238,7 +238,7 @@
   .workspaceNarrative {
     grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 18rem);
     grid-template-areas:
-      "scene aside"
+      "scene controls"
       "content content";
     align-items: start;
   }

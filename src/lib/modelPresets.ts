@@ -9,6 +9,8 @@ export type ModelPreset = {
   /** Default KV-facing hyperparameters (not a claim about a specific checkpoint) */
   params: Pick<KvMemoryParams, "layers" | "kvHeads" | "headDim" | "bytesPerElement"> & {
     queryHeads: number;
+    /** Approximate parameter count for weight-vs-KV teaching demos */
+    approximateParams: number;
   };
 };
 
@@ -26,6 +28,7 @@ export const modelPresets: Record<ModelPresetId, ModelPreset> = {
       kvHeads: 8,
       headDim: 64,
       bytesPerElement: 2,
+      approximateParams: 100_000_000,
     },
   },
   "llama-7b-class": {
@@ -38,6 +41,7 @@ export const modelPresets: Record<ModelPresetId, ModelPreset> = {
       kvHeads: 32,
       headDim: 128,
       bytesPerElement: 2,
+      approximateParams: 7_000_000_000,
     },
   },
   "llama-70b-gqa": {
@@ -50,6 +54,7 @@ export const modelPresets: Record<ModelPresetId, ModelPreset> = {
       kvHeads: 8,
       headDim: 128,
       bytesPerElement: 2,
+      approximateParams: 70_000_000_000,
     },
   },
 };

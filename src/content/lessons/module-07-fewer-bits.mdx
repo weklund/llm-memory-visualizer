@@ -1,0 +1,71 @@
+## Learning goal
+
+Show how **lower bit-width KV payloads** shrink memory, why savings are not magical perfect divisions, and why **keys and values** may need different treatment.
+
+## Builds on lesson 3
+
+`M_KV` scales with **bytes per element** (`bpe`). If the payload uses fewer bits, the leading term drops—before counting metadata.
+
+## Scaling the formula
+
+<Formula>
+{`M_KV(bpe′) ≈ M_KV(bpe) · (bpe′ / bpe)
+
+Examples (payload only, metadata ignored):
+FP16 bpe = 2
+FP8 bpe = 1 → ~2× smaller payload
+INT4 bpe = 0.5 → ~4× smaller payload
+INT2 bpe = 0.25 → ~8× smaller payload`}
+
+</Formula>
+
+Real schemes also store **scales**, **zero-points**, **group indices**, and often a **residual window** of full-precision recent tokens (`S07` KIVI). Teach payload scaling as a **lower bound** on savings, then add overhead.
+
+## Why “just quantize everything the same way” fails
+
+- **Keys** and **values** can have different outlier structure; research often quantizes them **asymmetrically** (e.g. KIVI: K per-channel, V per-token) (`S07`).
+- Aggressive low-bit KV can hurt quality; claims need method + model + residual policy—not a single perplexity number invented here.
+
+## What the scene shows
+
+Two memory grids: **FP16-scale** vs a **height-scaled** grid using the live compression ratio from **Quant payload bpe** vs **Bytes/element**. This is a visual metaphor for “thinner storage,” not a bit-exact layout.
+
+Metrics: compression ratio and quantized payload bytes (metadata still ignored).
+
+<TryThis>
+
+- Set **Quant payload bpe** to `0.5` while base bpe is `2` → about **4×** compression in the metric.
+- Switch model presets: absolute MiB change; ratio follows bpe choice.
+- Remember: quality is **not** measured in this lab—only capacity math.
+
+</TryThis>
+
+## Orthogonal idea: weight quant vs KV quant
+
+Quantizing **weights** (GPTQ, AWQ, …) is related but separate from quantizing the **cache**. Production stacks often combine both; this lesson isolates the cache term.
+
+<Checkpoint>
+
+- If you only change `bpe` from 2 to 1, what happens to `M_KV` under the simple model?
+- Name two reasons real savings are worse than the pure ratio.
+- Why might K and V use different grouping axes?
+
+</Checkpoint>
+
+<Assumptions>
+
+- No calibration datasets, no reported WikiText perplexity in the UI.
+- Outlier isolation / non-uniform codes (`S08` KVQuant) are mentioned, not fully simulated.
+- FP8 formats (e4m3, etc.) are “about 1 byte” at this teaching resolution.
+
+</Assumptions>
+
+<Sources>
+
+- `S07` Liu et al., KIVI — asymmetric 2-bit KV. https://arxiv.org/abs/2402.02750
+- `S08` Hooper et al., KVQuant. https://arxiv.org/abs/2401.18079
+- `S09` Xiao et al., SmoothQuant (activation/weight bridge). https://arxiv.org/abs/2211.10438
+- `S10` vLLM FP8 KV engineering notes (practice evolves).
+- Glossary: quantization terms in `docs/glossary.md`.
+
+</Sources>

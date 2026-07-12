@@ -56,3 +56,10 @@ Registry: `src/components/scene/LessonScene.tsx`.
 ## Metric conventions
 
 All panels should use `deriveSimulationMetrics` / `selectMetrics` so compression, waste, and phase proxies mean the same thing in every lesson.
+
+## MVP lesson content (Milestone 3)
+
+Ready path lessons with MDX, citations, and labs: **1–5 and 7**.  
+Advanced stubs remain: **6, 8, 9**.
+
+MDX callouts: `Formula`, `Assumptions`, `Sources`, `TryThis`, `Checkpoint` via `src/components/mdx/`.

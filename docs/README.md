@@ -33,9 +33,9 @@ This folder is the **content ground truth** for the LLM Memory Visualizer. Imple
 
 ## Simulation primitives (Milestone 2)
 
-| Document                           | Issue  | Purpose                                                    |
-| ---------------------------------- | ------ | ---------------------------------------------------------- |
-| [primitives.md](./primitives.md)   | #8–#12 | Pure metrics, 3D primitives, V2 lesson → scene map         |
+| Document                         | Issue  | Purpose                                            |
+| -------------------------------- | ------ | -------------------------------------------------- |
+| [primitives.md](./primitives.md) | #8–#12 | Pure metrics, 3D primitives, V2 lesson → scene map |
 
 Runnable app: `npm install && npm run dev` (see root README).
 

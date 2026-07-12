@@ -1,0 +1,60 @@
+## Learning goal
+
+Separate **prompt processing** from **token-by-token generation**, and connect each phase to different performance pressures.
+
+## Builds on lesson 3
+
+You have a KV cache that **fills** during the prompt and **grows** during the reply.
+
+## Two phases
+
+| Phase                  | Also called | What happens to KV                                     | User-visible metric                    |
+| ---------------------- | ----------- | ------------------------------------------------------ | -------------------------------------- |
+| **Reading the prompt** | Prefill     | Compute K/V for many prompt tokens; cache is populated | **TTFT** — time to first token         |
+| **Writing the reply**  | Decode      | Append K/V for one (or a few) new tokens per step      | **TPOT / ITL** — time per output token |
+
+Prefill often looks **compute-heavy** (large parallel work over the prompt). Decode often looks **memory-bandwidth-heavy** (reload weights and read a growing cache each step). These are **tendencies**, not theorems—short prompts and odd batches can flip the bottleneck.
+
+## What the scene shows
+
+- **Compute brick** vs **HBM tray** on a GPU node: which one “glows” depends on the **Phase** control.
+- **Bandwidth ribbon**: memory traffic metaphor during decode-leaning settings.
+- **Batch slots**: intuition for **iteration-level** batching—requests can enter/leave a batch as they finish (`S11` Orca), rather than waiting for the slowest sequence in a static batch.
+
+<TryThis>
+
+- Set **Phase** to `prefill`: compute emphasis high.
+- Set **Phase** to `decode`: memory emphasis high.
+- Raise **batch size**: more concurrent slots in the queue visual.
+- Watch metrics: prefill vs decode **intensity proxies** (toy FLOPs/byte—comparative only).
+
+</TryThis>
+
+## Why servers care
+
+A long **prefill** can delay **decode** for other users if both share the same GPU (interference). Later systems use chunked prefills (`S13`/`S14`) or disaggregated prefill/decode pools (`S12`). You only need the conflict today; schedulers get depth in advanced modules.
+
+<Checkpoint>
+
+- What does prefill do to the KV cache that decode does not?
+- Name one latency metric tied to each phase.
+- Why might “tokens per second” alone hide a bad interactive experience?
+
+</Checkpoint>
+
+<Assumptions>
+
+- Intensity numbers are **proxies** for teaching, not hardware counters.
+- Continuous batching is simplified to “slots reform each iteration.”
+- No multi-GPU topology.
+
+</Assumptions>
+
+<Sources>
+
+- `S11` Yu et al., Orca — iteration-level scheduling. https://www.usenix.org/conference/osdi22/presentation/yu
+- `S12` Zhong et al., DistServe — prefill/decode disaggregation. https://arxiv.org/abs/2401.09670
+- `S13`/`S14` Sarathi / Sarathi-Serve — chunked prefills. https://arxiv.org/abs/2308.16369 · https://arxiv.org/abs/2403.02310
+- Glossary: prefill/decode, TTFT, TPOT in `docs/glossary.md`.
+
+</Sources>

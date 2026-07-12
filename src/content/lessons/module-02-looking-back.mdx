@@ -1,40 +1,73 @@
-## Builds on Module 1
+## Learning goal
 
-You already know: the model emits one token at a time and the past keeps getting longer.
+Explain attention as **weighted looking-back** over past tokens, and assign plain-language roles to **query, key, and value**.
 
-## The problem each new token faces
+## Builds on lesson 1
 
-When the model is about to write token _t_, earlier tokens may matter a lot, a little, or almost not at all. **Attention** is the mechanism that answers:
+Generation is a loop. When the model is about to write token _t_, earlier tokens may matter a lot, a little, or almost not at all.
+
+## The question attention answers
 
 > For this new position, **how much should I look at** each past position—and **what information** should I take from it?
 
-## Three roles (intuition, not full math)
+## Three roles (intuition first)
 
-Think of each past token as offering a small card with three faces:
+| Role      | Plain question                                    | Letter |
+| --------- | ------------------------------------------------- | ------ |
+| **Query** | “What am I looking for right now?”                | Q      |
+| **Key**   | “How am I findable / what do I match on?”         | K      |
+| **Value** | “If you select me, what content do I contribute?” | V      |
 
-| Role      | Plain question                                  | Nickname |
-| --------- | ----------------------------------------------- | -------- |
-| **Query** | “What am I looking for right now?”              | Q        |
-| **Key**   | “What do I contain / how am I findable?”        | K        |
-| **Value** | “If you pick me, what content do I contribute?” | V        |
+Story form: **look up with K, then read out V.**
 
-For a new token, the model compares its **query** to past **keys** to get importance weights, then mixes past **values** accordingly.
+You do **not** need the full matrix formula in this lesson. Lesson 3 only needs: past positions produce **K and V that might be reused**.
 
-You do **not** need the matrix formula yet. You need the story: **look up (K), then read out (V).**
+## What the 3D surface shows
 
-## Layers
+The height field is a **demo** attention map (deterministic teaching data, not a real model forward pass):
 
-Real models stack many layers. Each layer can “look back” again with a different specialty. For our path, remember: **work related to past tokens happens over and over** down the stack—which will multiply cost in Module 3.
+- **Taller cells** ≈ more attention weight.
+- **● markers** ≈ early **attention sinks** (positions that often attract mass—important later for eviction, lesson 8).
+- **■ markers** ≈ **heavy hitters** (high cumulative importance in the demo).
 
-## Heads (light touch)
+Rows are queries; columns are keys. We downsample large grids so the scene stays readable (`docs/primitives.md`).
 
-Often several attentions run in parallel (“heads”)—several perspectives on the same past. Later, **sharing** keys/values across heads will appear as a memory optimization (GQA/MQA). You can ignore the acronyms until Module 3.
+<TryThis>
 
-## Bridge to Module 3
+- Move **Generation progress**: the token stream cursor changes; the attention demo still shows a full causal-style pattern.
+- Mentally pick one query row: mass often sits on early sinks **and** recent keys—not uniformly everywhere.
 
-If every new token needs keys and values for the past, a naïve engine recomputes them every step. Engines instead **remember** past K and V—the **KV cache**.
+</TryThis>
 
-## Sources (when you go deeper)
+## Layers and heads (light touch)
 
-- Attention Is All You Need (`S01` in `docs/sources.md`) — original multi-head attention
-- We stay conceptual here; equations land with the cache size story next
+- **Layers:** the model stacks many blocks; looking-back happens repeatedly. That multiplies stored K/V in lesson 3.
+- **Heads:** several attentions can run in parallel (“perspectives”). Later, **sharing K/V across heads** (GQA/MQA) shrinks cache size—lesson 3.
+
+## Causal masking (one sentence)
+
+In left-to-right generation, a token usually must not attend to **future** positions. Demo matrices use a causal pattern when rows = cols.
+
+<Checkpoint>
+
+- In one sentence: what is attention doing?
+- Which role is stored for reuse so the next token does not recompute the past—K, V, or both? (Answer next lesson: **both**.)
+
+</Checkpoint>
+
+<Assumptions>
+
+- Demo weights are pedagogical, not measured model activations.
+- We skip softmax temperature tricks, ALiBi/RoPE details, and multi-query algebra.
+- “Sinks” and “heavy hitters” are preview labels; policies appear in lesson 8 (`S18`, `S19`).
+
+</Assumptions>
+
+<Sources>
+
+- `S01` Vaswani et al., _Attention Is All You Need_ — multi-head attention definition.  
+  https://arxiv.org/abs/1706.03762
+- Later: StreamingLLM attention sinks `S19`; H₂O heavy hitters `S18` (lesson 8).
+- Glossary: Q/K/V roles in `docs/glossary.md`.
+
+</Sources>

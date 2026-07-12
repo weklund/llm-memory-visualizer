@@ -1,0 +1,76 @@
+## Learning goal
+
+Explain **internal** and **external** fragmentation of KV memory, and how **paged** allocation (PagedAttention-style) maps logical tokens to physical pages.
+
+## Builds on lessons 3–4
+
+Caches are large; many requests share one GPU. Naïve “one huge contiguous slab per sequence” wastes capacity.
+
+## The contiguous reservation problem
+
+If a system pre-reserves a max-length contiguous region per request:
+
+- **External fragmentation:** free memory exists in holes too small to place a new reservation.
+- **Internal fragmentation:** the last partially filled region wastes space up to almost a full block/page.
+
+Paged designs borrow the OS idea: fixed-size **pages** (blocks of `P` tokens) + a **block table** from logical indices → physical page IDs (`S05`).
+
+## Formula anchors
+
+<Formula>
+{`logical_blocks = ceil(S / P)
+internal_waste_tokens ≤ P − 1   (last partial page)
+
+Physical pages need not be contiguous.
+Shared pages (prefix reuse) appear in lesson 6.`}
+
+</Formula>
+
+## What the scene shows
+
+- A **physical page pool** in HBM: occupied plates vs **wireframe holes** (free gaps for the external-frag story).
+- Labels `L→P` for the **block table**.
+- Fill level on each page = occupied / `P`.
+
+Metrics report logical blocks, internal waste tokens, and free holes (teaching layout from `src/lib/paging.ts`—deterministic, not a live vLLM dump).
+
+<TryThis>
+
+- Change **block size P**: fewer larger pages vs more smaller pages; watch internal waste.
+- Change **sequence length S**: more logical pages; holes appear on a schedule for the demo.
+- Compare reserved vs used intuition: internal waste is “empty seats on the last bus.”
+
+</TryThis>
+
+## Mental model (PagedAttention)
+
+1. Split each sequence’s KV into blocks of `P` tokens.
+2. Allocate physical blocks on demand.
+3. Attention kernels gather K/V via the block table (non-contiguous OK).
+4. Optional copy-on-write sharing enables prefix reuse (lesson 6).
+
+Paper-reported waste reductions are **workload-specific**—quote them as paper results, not universal constants (`docs/sources.md` validation list).
+
+<Checkpoint>
+
+- Define internal vs external fragmentation in one sentence each.
+- Why does a block table allow non-contiguous physical storage?
+- What does raising `P` trade off?
+
+</Checkpoint>
+
+<Assumptions>
+
+- Page visuals use a **display** sequence length, not necessarily full `S` meshes.
+- Hole placement is a deterministic demo (`holeEvery`), not a real allocator trace.
+- K and V may be pooled separately in production layouts—we often show one page glyph.
+
+</Assumptions>
+
+<Sources>
+
+- `S05` Kwon et al., _Efficient Memory Management… PagedAttention_ (vLLM). https://arxiv.org/abs/2309.06180
+- `S06` vLLM PagedAttention design docs. https://docs.vllm.ai/
+- Glossary: page, block table, fragmentation in `docs/glossary.md`.
+
+</Sources>

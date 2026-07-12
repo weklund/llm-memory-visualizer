@@ -2,7 +2,9 @@ import { Suspense, useEffect, useMemo, useState, type ComponentType } from "reac
 import { Link } from "react-router-dom";
 import type { ModuleDefinition } from "@/content/modules";
 import { getAdjacentModules, stageLabels } from "@/content/modules";
+import { mdxComponents } from "@/components/mdx/mdxComponents";
 import { ControlPanel } from "./ControlPanel";
+import { FoundationControls } from "./FoundationControls";
 import { MetricPanel } from "./MetricPanel";
 import { SceneViewport } from "./SceneViewport";
 import styles from "./LessonShell.module.css";
@@ -11,10 +13,15 @@ type LessonShellProps = {
   module: ModuleDefinition;
 };
 
+type MdxContentProps = {
+  components?: typeof mdxComponents;
+};
+
 export function LessonShell({ module }: LessonShellProps) {
   const { prev, next } = getAdjacentModules(module.slug);
-  const [Content, setContent] = useState<ComponentType | null>(null);
+  const [Content, setContent] = useState<ComponentType<MdxContentProps> | null>(null);
   const showLab = module.workspace === "memory-lab";
+  const showFoundation = module.workspace === "narrative";
 
   const load = useMemo(() => module.loadContent, [module.loadContent]);
 
@@ -22,7 +29,7 @@ export function LessonShell({ module }: LessonShellProps) {
     let cancelled = false;
     setContent(null);
     void load().then((mod) => {
-      if (!cancelled) setContent(() => mod.default);
+      if (!cancelled) setContent(() => mod.default as ComponentType<MdxContentProps>);
     });
     return () => {
       cancelled = true;
@@ -69,20 +76,20 @@ export function LessonShell({ module }: LessonShellProps) {
               <MetricPanel />
             </div>
           </>
+        ) : showFoundation ? (
+          <div className={styles.controls}>
+            <FoundationControls />
+          </div>
         ) : (
           <aside className={styles.pathAside} aria-label="Path note">
             <h2 className={styles.pathAsideTitle}>On this path</h2>
-            <p>
-              Foundations lessons focus on the idea first. The interactive{" "}
-              <strong>memory lab</strong> (size formula, knobs, metrics) unlocks in lesson
-              3, once keys and values have a reason to be stored.
-            </p>
+            <p>Continue in order for the intended dependency chain.</p>
           </aside>
         )}
         <div className={styles.content}>
           {Content ? (
             <Suspense fallback={<p>Loading lesson…</p>}>
-              <Content />
+              <Content components={mdxComponents} />
             </Suspense>
           ) : (
             <p>Loading lesson…</p>

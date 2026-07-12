@@ -1,10 +1,17 @@
-import { formatBytes } from "@/lib/kvMemory";
+import { estimateWeightBytes, formatBytes } from "@/lib/kvMemory";
+import { modelPresets } from "@/lib/modelPresets";
 import { selectMetrics, useSimulationStore } from "@/state/simulationStore";
 import styles from "./MetricPanel.module.css";
 
 export function MetricPanel() {
   const params = useSimulationStore((s) => s.params);
   const m = selectMetrics(params);
+  const preset = modelPresets[params.presetId];
+  const weightBytes = estimateWeightBytes(
+    preset.params.approximateParams,
+    params.bytesPerElement,
+  );
+  const kvVsWeights = weightBytes > 0 ? m.kvLogical.bytes / weightBytes : 0;
 
   return (
     <section className={styles.panel} aria-labelledby="metrics-heading">
@@ -25,6 +32,20 @@ export function MetricPanel() {
           <span className={styles.sub}>
             {m.kvLogical.mebibytes.toFixed(2)} MiB
             {m.isOom ? " · over HBM budget" : ""}
+          </span>
+        </li>
+        <li className={styles.item}>
+          <span className={styles.label}>
+            <span
+              className={styles.swatch}
+              style={{ background: "var(--color-text-subtle)" }}
+              aria-hidden="true"
+            />
+            Weights (rough) vs KV
+          </span>
+          <span className={styles.value}>{formatBytes(weightBytes)}</span>
+          <span className={styles.sub}>
+            KV is {(kvVsWeights * 100).toFixed(1)}% of weight estimate · {preset.label}
           </span>
         </li>
         <li className={styles.item}>
